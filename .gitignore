@@ -1,0 +1,8 @@
+node_modules/
+dist/
+*-results.json
+.env
+.env.*
+*.log
+*.game.json
+*.save.json

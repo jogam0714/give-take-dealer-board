@@ -1,0 +1,12 @@
+{
+  "name": "give-take-dealer-board",
+  "version": "1.0.0",
+  "private": true,
+  "description": "순위 예측: 기브 & 테이크 진행자용 게임판",
+  "scripts": {
+    "build": "node build.cjs",
+    "test": "node independent-test.cjs && node no-priority-test.cjs && node dom-test.cjs"
+  },
+  "engines": { "node": ">=18" },
+  "devDependencies": { "linkedom": "0.18.12" }
+}

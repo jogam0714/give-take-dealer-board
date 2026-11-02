@@ -1,0 +1,654 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#211a1d"><title>순위 예측: 기브 & 테이크 · 진행자 테이블</title><style>:root{color-scheme:dark;--bg:#141416;--surface:#1d1d20;--paper:#efe7d7;--muted:#aca59b;--line:#3d3836;--gold:#c7a76c;--red:#b76768;--blue:#86a5b3;--green:#91af9e;--wine:#43252a;font-family:"Malgun Gothic","Apple SD Gothic Neo",sans-serif}
+*{box-sizing:border-box}body{margin:0;color:var(--paper);background:radial-gradient(ellipse at 30% 0,#2b1e22 0,transparent 45%),var(--bg);font-size:14px}button,input,select,textarea{font:inherit}button{cursor:pointer;border:1px solid #57504a;border-radius:6px;padding:10px 13px;background:#2a2727;color:var(--paper);transition:background .15s,border-color .15s}button:hover:not(:disabled){background:#3e3330;border-color:var(--gold)}button:disabled{opacity:.36;cursor:default}button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:2px solid var(--gold);outline-offset:3px}input,select,textarea{width:100%;min-width:0;border:1px solid #504841;border-radius:5px;padding:10px;background:#171719;color:var(--paper)}input[type=checkbox]{width:auto;accent-color:var(--gold)}[hidden]{display:none!important}h1,h2,h3,p{margin:0}h2{font-size:16px;font-weight:600}h3{font-size:13px}small{font-size:11px}.muted{color:var(--muted)}.gold-text{color:var(--gold)}.serif{font-family:Georgia,serif}.eyebrow{font-family:Georgia,serif;letter-spacing:2.8px;font-size:10px;color:var(--gold)}.tiny{font-size:11px;line-height:1.8}.tag{border:1px solid #5e503b;color:var(--gold);border-radius:20px;padding:5px 9px;font-size:10px;white-space:nowrap}.positive{color:#a7c0b6}.negative{color:#d3918c}.primary{background:#b99961;border-color:#d2b47e;color:#201b17;font-weight:700}.primary:hover:not(:disabled){background:#d0b17a}.danger{color:#e4a39b}.quiet{background:none;border-color:transparent;color:var(--muted)}.btn-sm{font-size:11px;padding:7px 10px}.wide{width:100%}.row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.between{display:flex;align-items:center;justify-content:space-between;gap:12px}.stack{display:flex;flex-direction:column;gap:10px}.field{display:block;font-size:11px;color:var(--muted)}.field input,.field select{margin-top:7px}.subtle-line{border-top:1px solid var(--line);padding-top:13px;margin-top:13px}.divider-label{font-size:11px;color:var(--muted);margin-bottom:10px}
+header{padding:24px 32px;display:flex;align-items:center;justify-content:space-between;gap:20px;border-bottom:1px solid #4b3b35;background:#171517e8}.identity{display:flex;align-items:center;gap:17px}.mark{width:43px;height:50px;position:relative;flex-shrink:0}.mark:before,.mark:after{content:"";position:absolute;width:28px;height:40px;border:1px solid var(--gold);border-radius:3px;background:#34252a;transform:rotate(-12deg);left:0;top:2px}.mark:after{left:13px;top:6px;transform:rotate(10deg);background:#2b2725}h1{font-size:26px;letter-spacing:-1px;margin:5px 0 0}.subtitle{font-size:11px;color:var(--muted);margin-top:7px}.header-tools{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end}.view-switch{display:flex;align-items:center;gap:9px;border-color:#756044}.view-switch[aria-checked=true]{background:#54382e;border-color:#b38e5a}.switch-track{width:28px;height:16px;background:#5c5651;display:inline-block;border-radius:20px;position:relative}.switch-track:after{content:"";width:10px;height:10px;position:absolute;top:3px;left:3px;background:var(--paper);border-radius:50%}.view-switch[aria-checked=true] .switch-track{background:#bd9c67}.view-switch[aria-checked=true] .switch-track:after{left:15px}.save-status{font-size:10px;color:var(--muted)}
+main{max-width:1680px;margin:0 auto;padding:24px 30px 35px}.privacy-note{border:1px solid #786044;background:#3b2f26;border-radius:6px;padding:10px 15px;font-size:11px;margin-bottom:17px;color:#edd4ac}.layout{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:20px;align-items:start}.main-column,.sidebar{min-width:0;display:flex;flex-direction:column;gap:17px}.panel{border:1px solid var(--line);border-radius:9px;background:var(--surface);padding:18px}.panel-title{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}.phase-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:17px}.metric{padding:13px 16px;border:1px solid var(--line);background:#201d1e;border-radius:6px}.metric span{display:block;font-size:10px;color:var(--muted)}.metric strong{display:block;font-size:21px;margin-top:6px;font-weight:500}.metric .serif{font-size:27px;color:var(--gold)}.table-shell{border:1px solid #68543f;border-radius:10px;overflow:hidden;background:radial-gradient(ellipse at 50% 15%,#3a252a 0,#261d21 55%,#211d20 100%)}.table-header{display:flex;align-items:center;justify-content:space-between;padding:19px 22px;border-bottom:1px solid #5d443b;gap:12px}.round-number{font-family:Georgia,serif;font-size:32px;color:var(--gold);letter-spacing:2px}.round-number span{font-size:14px;color:#b4a38f}.table-header h2{margin-top:7px;font-size:13px;font-weight:400;color:#c4b9a6}.round-track{display:flex;gap:6px}.round-dot{width:23px;height:23px;border:1px solid #5b4843;border-radius:50%;display:grid;place-items:center;font-family:Georgia,serif;color:#8a7c73;font-size:10px}.round-dot.done{background:#71593b;color:#f4dfb8;border-color:#ae8d58}.round-dot.current{border-color:#d0b17a;color:#edcf94;box-shadow:0 0 0 3px #c7a76c14}.table-scroll{overflow-x:auto}.seats{display:grid;grid-template-columns:repeat(5,minmax(112px,1fr));min-width:600px;padding:28px 17px 22px;gap:10px}.seat{text-align:center;min-width:0;padding:0 7px;position:relative}.seat+.seat{border-left:1px solid #71504755}.seat-avatar{margin:0 auto 9px;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-family:Georgia,serif;font-size:17px;border:1px solid #9e8763;background:#302a28;color:#debd85}.seat-name{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.priority{font-size:9px;color:#b3a28b;margin-top:7px}.envelope{height:98px;position:relative;margin:18px auto 13px;width:70px}.envelope .back{position:absolute;top:0;left:10px;width:55px;height:79px;background:repeating-linear-gradient(45deg,#44343a,#44343a 3px,#3a2b32 3px,#3a2b32 6px);border:1px solid #9a7955;border-radius:4px;box-shadow:0 5px 15px #0005;transform:rotate(8deg)}.envelope .back:first-child{transform:rotate(-10deg);left:0;top:6px}.envelope .back:after{content:"G / T";position:absolute;inset:7px;border:1px solid #ba986955;display:grid;place-items:center;font-family:Georgia,serif;font-size:10px;color:#b69a74;letter-spacing:1px}.envelope.opened .back{background:#e4d5bc;color:#3d2c28}.envelope.opened .back:after{content:attr(data-count);font-size:25px;color:#49372b;border-color:#8e735944}.seat-status{font-size:10px;color:#b4a598;min-height:19px}.seat-status.sealed{color:#dbc394}.count-label{font-size:11px;margin-top:6px}.count-label b{font-family:Georgia,serif;font-size:21px;color:#e3c28a;margin-right:4px}.seat-private{padding-top:11px;margin-top:13px;border-top:1px dashed #735343;font-size:10px;color:var(--muted);line-height:1.9}.seat-private strong{font-family:Georgia,serif;font-size:20px;color:#ecdbc0;display:block}.table-foot{border-top:1px solid #63473d;padding:17px 22px;display:flex;align-items:center;justify-content:space-between;gap:16px;background:#1c171a44}.extremes{display:flex;gap:24px}.extreme{font-size:10px;color:#b9aa97}.extreme b{font-family:Georgia,serif;font-size:25px;display:block;margin-top:5px;color:#ead3ab}.table-message{font-size:11px;color:#b4a698;line-height:1.9;max-width:360px}.priority-strip{display:flex;gap:6px;flex-wrap:wrap;margin:12px 0 0}.priority-person{font-size:10px;padding:5px 7px;border:1px solid #4d443b;border-radius:4px;color:#c7b799}
+.setup-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}.setup-person{padding:12px;background:#252123;border:1px solid #443b36;border-radius:6px}.setup-person .field+.field{margin-top:10px}.setup-person input,.setup-person select{padding:8px;font-size:12px}.setup-badge{font-family:Georgia,serif;color:var(--gold);font-size:20px;margin-bottom:10px}.setup-controls{display:flex;gap:8px;flex-wrap:wrap;margin-top:15px}.priority-drawn{font-size:11px;color:var(--green);line-height:1.8;margin-top:12px}.editor-head{display:flex;align-items:center;gap:12px;justify-content:space-between;margin-bottom:15px}.player-tabs{display:flex;gap:5px;flex-wrap:wrap}.player-tab{font-size:11px;padding:8px 11px}.player-tab.selected{border-color:var(--gold);color:#edce96;background:#49392d}.player-tab .check{margin-left:5px;color:var(--green)}.assignment-grid{display:grid;grid-template-columns:1fr 1.35fr;gap:12px;margin:17px 0}.assignment{border:1px solid #4f443b;padding:13px;border-radius:7px;background:#211d1e;cursor:pointer;min-height:103px}.assignment.active{border-color:#c4a368;background:#392d24}.assignment:focus-visible{outline:2px solid var(--gold)}.assignment-label{font-size:10px;color:var(--muted);display:flex;justify-content:space-between;gap:8px}.assignment-value{font-family:Georgia,serif;font-size:31px;margin-top:10px;color:#dfc69e}.assignment-other{display:flex;align-items:center;gap:12px}.assignment-other .assignment-value{min-width:42px}.assignment-other select{font-size:12px;padding:7px;margin-top:8px}.hand-grid{display:grid;grid-template-columns:repeat(10,1fr);gap:7px}.number-card{padding:0;position:relative;min-width:0;aspect-ratio:.72;background:#d4c9b4;color:#302a24;border:1px solid #ac9a7c;border-radius:4px;box-shadow:0 3px 5px #0003;font-family:Georgia,serif;font-size:24px}.number-card.minus{background:#3b2c30;color:#e6c0b8;border-color:#7b5556}.number-card:not(:disabled):hover{background:#eadfc8;color:#39291e;transform:translateY(-2px)}.number-card.minus:not(:disabled):hover{background:#654047;color:#fff0df}.number-card.used{opacity:.16;box-shadow:none}.number-card.chosen{outline:2px solid #d7b979;outline-offset:2px}.number-card .corner{position:absolute;top:5px;left:5px;font-size:10px}.number-card .selection-label{position:absolute;bottom:5px;left:0;right:0;font-family:"Malgun Gothic",sans-serif;font-size:9px;color:inherit}.editor-hint{font-size:10px;color:var(--muted);margin:12px 0;line-height:1.8}.item-editor{border-top:1px solid var(--line);margin-top:15px;padding-top:13px}.item-row{display:flex;gap:9px;align-items:center;margin-top:8px}.item-row label{display:flex;gap:7px;align-items:center;font-family:Georgia,serif;font-size:17px;min-width:75px}.item-row select{padding:7px;font-size:12px}.editor-actions{display:flex;gap:8px;align-items:center;justify-content:flex-end;margin-top:15px}.editor-lock{font-size:11px;color:var(--green);margin-right:auto}.operation-note{font-size:11px;color:var(--muted);line-height:1.9;margin-bottom:12px}.actions{display:grid;grid-template-columns:1fr;gap:8px}.actions button{padding:12px}.next-button{border-color:#88714e;color:#e8c98d}.player-stat{display:flex;justify-content:space-between;gap:10px;font-size:11px;padding:9px 0;border-bottom:1px solid #38322f}.player-stat:last-child{border:0}.player-stat b{font-weight:500;color:#dbc49d}.item-store{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:10px}.item-store button{padding:10px 4px;font-size:11px}.item-store strong{display:block;font-family:Georgia,serif;font-size:23px;font-weight:400;margin-bottom:5px}.item-inventory{font-size:11px;line-height:1.8;color:var(--muted);margin-top:11px}.clock{font-family:Georgia,serif;font-size:39px;letter-spacing:3px;text-align:center;color:#e1c28d;margin:6px 0}.meeting-choice{display:grid;grid-template-columns:1fr 1fr;gap:7px;font-size:11px;color:#c9bdab;margin:12px 0}.meeting-choice label{display:flex;gap:6px;align-items:center;min-width:0}.meeting-choice span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.meeting-queue{margin-top:10px}.meeting-ticket{padding:8px 0;border-bottom:1px solid #39332f;font-size:10px;color:var(--muted);line-height:1.8;display:flex;justify-content:space-between;gap:8px}.meeting-ticket button{flex-shrink:0;padding:4px 8px;font-size:10px}.timer-controls{justify-content:center}.timer-controls button{padding:6px 11px;font-size:10px}.ranking{width:100%;border-collapse:collapse;font-size:12px}.ranking th,.ranking td{text-align:left;padding:11px 8px;border-bottom:1px solid #433b32}.ranking th{font-size:10px;font-weight:400;color:var(--muted)}.ranking .rank-num{font-family:Georgia,serif;font-size:21px;color:var(--gold)}.ranking tr.success{background:#b7996120}.ranking .success-mark{color:var(--green);font-size:11px}.ranking .fail-mark{color:#aa9990;font-size:11px}.checkpoint-list{display:flex;gap:8px;flex-wrap:wrap}.checkpoint-person{flex:1;min-width:95px;padding:12px;background:#2a2421;border:1px solid #574936;border-radius:5px}.checkpoint-person b{font-family:Georgia,serif;font-size:24px;color:var(--gold);margin-right:8px}.checkpoint-person span{font-size:11px}.history details{border-top:1px solid #41382f}.history details:first-of-type{border-top:0}.history summary{cursor:pointer;padding:13px 0;font-size:11px;display:flex;gap:12px;justify-content:space-between;color:#c9bda9}.history .history-counts{font-size:11px;line-height:1.9;padding:0 0 12px;color:var(--muted)}.audit{font-size:11px;border-collapse:collapse;width:100%;margin-bottom:12px}.audit td,.audit th{text-align:left;border-bottom:1px solid #3c3530;padding:8px 5px}.audit th{color:var(--muted);font-weight:400}.audit td:last-child{color:#b5a795;line-height:1.8}.empty{padding:20px 0;color:#8f867a;font-size:11px;text-align:center}.footer{display:flex;justify-content:space-between;gap:20px;align-items:center;margin-top:21px;padding-top:17px;border-top:1px solid var(--line)}#status{font-size:11px;line-height:1.8;color:#c4b59c;min-height:20px}#status.error{color:#e3a095}.data-tools{display:flex;gap:5px;flex-wrap:wrap;margin-top:12px}.data-tools button{font-size:10px}.rule-copy{font-size:11px;color:var(--muted);line-height:2;margin-top:12px}.rules summary{font-size:11px;cursor:pointer;color:#c5ad82}.modal-backdrop{position:fixed;inset:0;background:#080709d9;z-index:20;display:flex;align-items:center;justify-content:center;padding:20px}.modal{background:#242022;border:1px solid #8a704c;border-radius:10px;padding:25px;width:min(560px,100%);max-height:90vh;overflow:auto;box-shadow:0 30px 100px #000a}.modal h2{font-size:20px}.modal textarea{font-size:13px;line-height:1.9;min-height:180px;resize:vertical;margin:16px 0}.modal input{margin-top:12px}.modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:17px}.modal-body{font-size:12px;color:#c9baaa;line-height:1.9;margin-top:12px}.public-only-message{padding:14px 18px;border:1px solid #514435;background:#25201f;border-radius:7px;color:#c4b195;font-size:12px;line-height:1.9}.selection-progress{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:13px}.selection-dot{padding:6px 8px;border:1px solid #4a4036;border-radius:5px;font-size:10px;color:#a79b89}.selection-dot.ready{color:#cbb88d;background:#423727;border-color:#7f6948}
+body:not(.dealer-view) .layout{grid-template-columns:1fr}body:not(.dealer-view) main{max-width:1280px}
+@media(min-width:1500px){.layout{grid-template-columns:minmax(0,1fr) 350px}.seats{padding:35px 26px 28px}.envelope{height:115px;margin-top:22px}.envelope .back{width:65px;height:94px}.hand-grid{gap:10px}.number-card{font-size:29px}}
+@media(max-width:1130px){main{padding:20px}.layout{grid-template-columns:minmax(0,1fr) 290px;gap:14px}.panel{padding:15px}.setup-grid{grid-template-columns:repeat(3,1fr)}.round-track{gap:3px}.round-dot{width:19px;height:19px}.table-header{padding:17px}.hand-grid{grid-template-columns:repeat(5,1fr)}.number-card{aspect-ratio:.9}.identity{gap:11px}header{padding:20px}.save-status{display:none}.editor-head{align-items:flex-start;flex-direction:column}.seats{gap:0;padding-left:5px;padding-right:5px}.table-foot{padding:15px}.table-message{font-size:10px}.extremes{gap:15px}}
+@media(max-width:850px){.layout{grid-template-columns:1fr}.sidebar{display:grid;grid-template-columns:1fr 1fr;align-items:start}.operations{grid-column:1/-1}.operations .actions{grid-template-columns:repeat(3,1fr)}.operations .operation-note{margin-bottom:10px}.hand-grid{grid-template-columns:repeat(10,1fr)}.number-card{aspect-ratio:.72}.setup-grid{grid-template-columns:repeat(5,1fr)}header{align-items:flex-start}h1{font-size:23px}.header-tools{max-width:240px}.header-tools .btn-sm{padding:6px 8px}.subtitle{display:none}.table-scroll{margin:0}.setup-person{padding:9px}.setup-person input,.setup-person select{font-size:11px}}
+@media(max-width:600px){header{padding:18px 13px}.mark{display:none}.eyebrow{font-size:8px;letter-spacing:2px}h1{font-size:21px}.header-tools{gap:5px;max-width:180px}.header-tools button{font-size:10px;padding:8px}.header-tools .undo-redo{display:none}main{padding:14px 10px}.phase-grid{gap:6px}.metric{padding:11px 9px}.metric strong{font-size:16px}.metric .serif{font-size:22px}.table-header{padding:16px 13px}.round-number{font-size:26px}.round-track{gap:2px;flex-wrap:wrap;max-width:120px;justify-content:flex-end}.round-dot{width:18px;height:18px;font-size:9px}.table-foot{align-items:flex-start;flex-direction:column;gap:13px}.extremes{gap:28px}.setup-grid{grid-template-columns:1fr 1fr}.setup-person:last-child{grid-column:1/-1}.sidebar{grid-template-columns:1fr}.operations .actions{grid-template-columns:1fr}.assignment-grid{grid-template-columns:1fr 1fr;gap:8px}.assignment{padding:10px}.assignment-other{gap:5px}.assignment-other select{font-size:11px;padding:7px 4px}.hand-grid{grid-template-columns:repeat(5,1fr);gap:7px}.number-card{aspect-ratio:.82;font-size:26px}.editor-actions{flex-wrap:wrap}.editor-lock{flex-basis:100%}.editor-actions button{flex:1}.ranking{font-size:10px}.ranking th,.ranking td{padding:9px 5px}.footer .eyebrow{display:none}.privacy-note{font-size:10px;padding:9px 12px}.history summary{font-size:10px}.checkpoint-person{min-width:80px}.player-tab{font-size:10px;padding:7px 9px}}
+</style></head>
+<body>
+<header><div class="identity"><span class="mark" aria-hidden="true"></span><div><div class="eyebrow">RANK PREDICTION</div><h1>기브 &amp; 테이크</h1><p class="subtitle">점수를 나누고, 자신의 순위를 완성한다.</p></div></div><div class="header-tools"><span class="save-status" id="save-status">자동 저장 준비</span><button class="btn-sm undo-redo" id="undo">되돌리기</button><button class="btn-sm undo-redo" id="redo">다시 실행</button><button class="view-switch" id="view-toggle" role="switch" aria-checked="false"><span class="switch-track" aria-hidden="true"></span><span id="view-label">진행자 보기 OFF</span></button></div></header>
+<main>
+<div class="privacy-note" id="privacy-note" hidden>진행자 보기 ON · 예측, 손패, 개인 점수를 확인하고 있습니다. 화면 공유 시 OFF로 전환하세요.</div>
+<section class="panel" id="setup" hidden style="margin-bottom:18px"></section>
+<div class="layout"><div class="main-column">
+<section aria-label="공개 게임판">
+<div class="phase-grid" id="metrics"></div>
+<div class="table-shell"><div class="table-header"><div><div class="eyebrow">GIVE &amp; TAKE TABLE</div><div class="round-number" id="round-number">ROUND 01 <span>/ 10</span></div><h2 id="phase-name">경기 준비</h2></div><div class="round-track" id="round-track"></div></div>
+<div class="table-scroll"><div class="seats" id="seats"></div></div>
+<div class="table-foot"><div class="extremes"><div class="extreme">라운드 최고 득점<b id="maximum">—</b></div><div class="extreme">라운드 최저 득점<b id="minimum">—</b></div></div><p class="table-message" id="table-message">예측을 봉인하고 첫 라운드를 시작하세요.</p></div></div>
+<div class="priority-strip" id="priority-strip"></div>
+</section>
+<div class="public-only-message" id="public-guide">진행자 보기를 켜서 참가자와 예측을 설정하세요.</div>
+<section class="panel" id="checkpoint" hidden></section>
+<section class="panel" id="final-panel" hidden></section>
+<section class="panel" id="editor" hidden></section>
+<section class="panel" id="private-results" hidden></section>
+<section class="panel history" id="history"><div class="panel-title"><h2>라운드 기록</h2><span class="eyebrow">ROUND ARCHIVE</span></div><div id="history-content"></div></section>
+</div><aside class="sidebar" id="sidebar" hidden>
+<section class="panel operations"><div class="panel-title"><h2>라운드 운영</h2><span class="tag" id="submission-count">0 / 5 제출</span></div><div class="selection-progress" id="submission-progress"></div><p class="operation-note" id="operation-note"></p><div class="actions"><button id="resolve" class="primary">제출 마감 · 득점 계산</button><button id="publish">라운드 결과 공개</button><button id="next" class="next-button">다음 라운드</button></div><button id="public-message" class="wide btn-sm quiet" style="margin-top:7px">공개 안내문</button></section>
+<section class="panel"><div class="panel-title"><h2>아이템 관리</h2><span class="tag">비공개 구매</span></div><label class="field">플레이어<select id="store-player"></select></label><div id="store"></div></section>
+<section class="panel"><div class="panel-title"><h2>독대 관리</h2><span class="tag" id="meeting-count">0회 접수</span></div><div class="clock" id="meeting-clock">10:00</div><p class="tiny muted" id="meeting-caption" style="text-align:center">접수 대기</p><div class="row timer-controls" style="margin-top:9px"><button id="timer-pause">일시정지</button><button id="timer-finish">완료</button></div><div class="meeting-choice" id="meeting-choice"></div><button id="meeting-add" class="wide btn-sm">독대 접수 · 인당 1가넷</button><div class="meeting-queue" id="meeting-queue"></div></section>
+<section class="panel"><div class="panel-title"><h2>경기 관리</h2><span class="eyebrow">CONTROL</span></div><div class="row"><button id="undo-alt" class="btn-sm">되돌리기</button><button id="redo-alt" class="btn-sm">다시 실행</button></div><div class="data-tools"><button id="export" class="btn-sm">경기 파일 저장</button><button id="import" class="btn-sm">불러오기</button><button id="new-game" class="btn-sm danger">새 경기</button></div><input id="file-input" type="file" accept=".json,application/json" aria-label="경기 파일 불러오기" hidden><p class="tiny muted" style="margin-top:10px">자동 저장 · 경기 파일에는 비공개 정보도 포함됩니다.</p><details class="rules subtle-line"><summary>진행 기준 확인</summary><div class="rule-copy">기본 카드 2장: 자신 1장 + 다른 플레이어 1장.<br>아이템 구매는 비공개로 진행.<br>아이템도 카드 장수와 득점에 포함.<br>동점: 최근 라운드 득점부터 역순 비교. 10라운드의 각 득점까지 같으면 재경기.<br>5라운드 종료 후 현재 점수 순위만 공개.<br>최종: 예측 성공자 점수 순위순 → 예측 실패자 점수 순위순.</div></details></section>
+</aside></div>
+<footer class="footer"><p id="status" role="status" aria-live="polite">진행자 보기를 켜면 경기 준비를 시작할 수 있습니다.</p><span class="eyebrow">GIVE A CARD. TAKE YOUR PLACE.</span></footer>
+</main>
+<div class="modal-backdrop" id="modal-root" hidden></div>
+<script>(function (root, factory) {
+  'use strict';
+  if (typeof module === 'object' && module.exports) module.exports = factory();
+  else root.GiveTake = factory();
+})(typeof globalThis !== 'undefined' ? globalThis : this, function () {
+  'use strict';
+
+  const NUMBERS = Object.freeze(Array.from({ length: 10 }, (_, i) => i - 10).concat(Array.from({ length: 10 }, (_, i) => i + 1)));
+  const ITEM_VALUES = Object.freeze({ plus: 11, minus: -11, zero: 0 });
+  const ITEM_COSTS = Object.freeze({ plus: 3, minus: 3, zero: 1 });
+  const IDS = Object.freeze(['p1', 'p2', 'p3', 'p4', 'p5']);
+  const ROUNDS = 10;
+  const copy = value => JSON.parse(JSON.stringify(value));
+  const own = (value, key) => Object.prototype.hasOwnProperty.call(value, key);
+  const isObject = value => value !== null && typeof value === 'object' && !Array.isArray(value);
+  const integer = (value, min, max) => Number.isInteger(value) && value >= min && value <= max;
+  function requireRule(condition, message) { if (!condition) throw new Error(message); }
+  function isId(id) { return IDS.includes(id); }
+  function player(state, id) {
+    const found = state.players.find(p => p.id === id);
+    requireRule(!!found, '올바른 플레이어를 선택해 주세요.');
+    return found;
+  }
+  function current(state) {
+    requireRule(state.started && state.predictionsLocked, '순위 예측을 확정하고 게임을 시작해 주세요.');
+    requireRule(integer(state.roundIndex, 0, 9), '라운드 정보가 올바르지 않습니다.');
+    return state.rounds[state.roundIndex];
+  }
+  function writableRound(state) {
+    const round = current(state);
+    requireRule(!round.resolved, '이미 정산한 라운드입니다. 다음 라운드로 이동해 주세요.');
+    return round;
+  }
+  function complete(state) { return state.rounds.length === ROUNDS && state.rounds.every(r => r.resolved); }
+  function validPriority(ids) {
+    return Array.isArray(ids) && ids.length === 5 && new Set(ids).size === 5 && ids.every(isId);
+  }
+  function lastResolvedIndex(state) {
+    let last = -1;
+    state.rounds.forEach((round, index) => { if (round.resolved) last = index; });
+    return last;
+  }
+
+  function createGame(config, priorityIds) {
+    const input = config === undefined ? IDS.map((_, i) => ({ name: '플레이어 ' + (i + 1), garnets: 0 })) : config;
+    requireRule(Array.isArray(input) && input.length === 5, '플레이어는 정확히 5명이어야 합니다.');
+    const players = input.map((p, i) => {
+      requireRule(isObject(p), '플레이어 정보가 올바르지 않습니다.');
+      const name = typeof p.name === 'string' ? p.name.trim() : '';
+      const garnets = p.garnets === undefined ? p.startingGarnets : p.garnets;
+      requireRule(name.length > 0 && name.length <= 40 && !/[\u0000-\u001f]/.test(name), '이름은 1~40자로 입력해 주세요.');
+      requireRule(integer(garnets, 0, 1000000), '시작 가넷은 0 이상의 정수로 입력해 주세요.');
+      return { id: IDS[i], name, startingGarnets: garnets };
+    });
+    requireRule(priorityIds === undefined || validPriority(priorityIds), '동점 우선순위에는 모든 플레이어가 한 번씩 있어야 합니다.');
+    const priority = priorityIds === undefined ? IDS.slice() : priorityIds.slice();
+    return {
+      version: 1,
+      players,
+      priority,
+      predictions: Object.fromEntries(IDS.map(id => [id, null])),
+      predictionsLocked: false,
+      started: false,
+      roundIndex: 0,
+      rounds: Array.from({ length: ROUNDS }, () => ({ submissions: {}, resolved: false, results: null })),
+      purchases: Object.fromEntries(IDS.map(id => [id, { boost: null, zero: false }])),
+      meetings: []
+    };
+  }
+
+  function setPrediction(state, id, rank) {
+    player(state, id);
+    requireRule(!state.predictionsLocked && !state.started, '게임 시작 후에는 예측을 바꿀 수 없습니다.');
+    requireRule(rank === null || integer(rank, 1, 5), '예측 순위는 1~5위 중 선택해 주세요.');
+    const next = copy(state);
+    next.predictions[id] = rank;
+    return next;
+  }
+  function setPriority(state, ids) {
+    requireRule(!state.predictionsLocked && !state.started, '게임 시작 후에는 동점 우선순위를 바꿀 수 없습니다.');
+    requireRule(validPriority(ids), '동점 우선순위에는 모든 플레이어가 한 번씩 있어야 합니다.');
+    const next = copy(state);
+    next.priority = ids.slice();
+    return next;
+  }
+  function lockPredictions(state) {
+    requireRule(!state.started && !state.predictionsLocked, '이미 게임을 시작했습니다.');
+    requireRule(IDS.every(id => integer(state.predictions[id], 1, 5)), '다섯 명의 예측 순위를 모두 입력해 주세요.');
+    const next = copy(state);
+    next.predictionsLocked = true;
+    next.started = true;
+    return next;
+  }
+
+  function remainingGarnets(state, id) {
+    const p = player(state, id);
+    const purchase = state.purchases[id];
+    const itemCost = (purchase.boost ? 3 : 0) + (purchase.zero ? 1 : 0);
+    const meetingCost = state.meetings.reduce((sum, meeting) => sum + (meeting.participants.includes(id) ? 1 : 0), 0);
+    return p.startingGarnets - itemCost - meetingCost;
+  }
+  function buyItem(state, id, kind) {
+    player(state, id);
+    requireRule(own(ITEM_VALUES, kind), '구매할 아이템을 선택해 주세요.');
+    requireRule(!complete(state), '종료된 게임에서는 아이템을 구매할 수 없습니다.');
+    const purchase = state.purchases[id];
+    if (kind === 'zero') requireRule(!purchase.zero, '0 아이템은 한 번만 구매할 수 있습니다.');
+    else requireRule(purchase.boost === null, '+11과 −11 중 하나만 한 번 구매할 수 있습니다.');
+    requireRule(remainingGarnets(state, id) >= ITEM_COSTS[kind], '아이템을 구매할 가넷이 부족합니다.');
+    const next = copy(state);
+    if (kind === 'zero') next.purchases[id].zero = true;
+    else next.purchases[id].boost = kind;
+    return next;
+  }
+
+  function availableCards(state, id, roundIndex) {
+    player(state, id);
+    const through = roundIndex === undefined ? state.roundIndex : roundIndex;
+    requireRule(integer(through, 0, 9), '라운드 정보가 올바르지 않습니다.');
+    const used = new Set();
+    for (let r = 0; r < through; r += 1) {
+      const round = state.rounds[r];
+      if (round.resolved && round.submissions[id]) {
+        used.add(round.submissions[id].self);
+        used.add(round.submissions[id].other);
+      }
+    }
+    return NUMBERS.filter(value => !used.has(value));
+  }
+  function availableItems(state, id, roundIndex) {
+    player(state, id);
+    const through = roundIndex === undefined ? state.roundIndex : roundIndex;
+    requireRule(integer(through, 0, 9), '라운드 정보가 올바르지 않습니다.');
+    const purchase = state.purchases[id];
+    const kinds = [].concat(purchase.boost || [], purchase.zero ? ['zero'] : []);
+    const used = new Set();
+    for (let r = 0; r < through; r += 1) {
+      const round = state.rounds[r];
+      if (round.resolved && round.submissions[id]) round.submissions[id].items.forEach(item => used.add(item.kind));
+    }
+    return kinds.filter(kind => !used.has(kind));
+  }
+  function checkSubmission(state, id, submission, roundIndex) {
+    player(state, id);
+    requireRule(isObject(submission), '카드 제출 정보를 확인해 주세요.');
+    const cards = availableCards(state, id, roundIndex);
+    requireRule(cards.includes(submission.self) && cards.includes(submission.other), '자신이 보유한 사용하지 않은 숫자 카드를 선택해 주세요.');
+    requireRule(submission.self !== submission.other, '서로 다른 숫자 카드 두 장을 선택해 주세요.');
+    requireRule(isId(submission.target) && submission.target !== id, '다른 카드를 받을 상대 플레이어를 선택해 주세요.');
+    requireRule(Array.isArray(submission.items) && submission.items.length <= 2, '추가 아이템은 최대 두 장입니다.');
+    const available = availableItems(state, id, roundIndex);
+    const used = new Set();
+    submission.items.forEach(item => {
+      requireRule(isObject(item) && own(ITEM_VALUES, item.kind), '아이템 정보가 올바르지 않습니다.');
+      requireRule(available.includes(item.kind) && !used.has(item.kind), '구매하여 보유한 미사용 아이템만 한 번 제출할 수 있습니다.');
+      requireRule(isId(item.target), '아이템을 받을 플레이어를 선택해 주세요.');
+      used.add(item.kind);
+    });
+  }
+  function submit(state, id, submission) {
+    writableRound(state);
+    const clean = { self: submission && submission.self, other: submission && submission.other, target: submission && submission.target, items: submission && submission.items !== undefined ? submission.items : [] };
+    checkSubmission(state, id, clean, state.roundIndex);
+    const next = copy(state);
+    next.rounds[next.roundIndex].submissions[id] = copy(clean);
+    return next;
+  }
+  function unsubmit(state, id) {
+    writableRound(state);
+    player(state, id);
+    const next = copy(state);
+    delete next.rounds[next.roundIndex].submissions[id];
+    return next;
+  }
+  function calculateResults(state, roundIndex) {
+    const round = state.rounds[roundIndex];
+    const results = IDS.map(id => ({ id, score: 0, count: 0, received: [] }));
+    const byId = Object.fromEntries(results.map(result => [result.id, result]));
+    function receive(target, from, value, kind) {
+      byId[target].received.push({ from, value, kind });
+      byId[target].score += value;
+      byId[target].count += 1;
+    }
+    IDS.forEach(id => {
+      const submission = round.submissions[id];
+      receive(id, id, submission.self, 'number');
+      receive(submission.target, id, submission.other, 'number');
+      submission.items.forEach(item => receive(item.target, id, ITEM_VALUES[item.kind], item.kind));
+    });
+    return results;
+  }
+  function resolveRound(state) {
+    const round = writableRound(state);
+    requireRule(IDS.every(id => own(round.submissions, id)), '다섯 명의 카드 제출을 모두 완료해 주세요.');
+    IDS.forEach(id => checkSubmission(state, id, round.submissions[id], state.roundIndex));
+    const next = copy(state);
+    next.rounds[next.roundIndex].results = calculateResults(next, next.roundIndex);
+    next.rounds[next.roundIndex].resolved = true;
+    return next;
+  }
+  function nextRound(state) {
+    const round = current(state);
+    requireRule(round.resolved, '현재 라운드를 먼저 정산해 주세요.');
+    requireRule(state.roundIndex < ROUNDS - 1, '10라운드가 모두 종료되었습니다.');
+    const next = copy(state);
+    next.roundIndex += 1;
+    return next;
+  }
+  function rankings(state, through) {
+    const last = through === undefined ? lastResolvedIndex(state) : through;
+    requireRule(integer(last, -1, 9), '순위를 계산할 라운드가 올바르지 않습니다.');
+    for (let r = 0; r <= last; r += 1) requireRule(state.rounds[r].resolved, '정산이 완료된 라운드까지만 순위를 계산할 수 있습니다.');
+    const rows = IDS.map(id => {
+      const roundScores = state.rounds.slice(0, last + 1).map(round => round.results.find(result => result.id === id).score);
+      return { id, total: roundScores.reduce((sum, value) => sum + value, 0), roundScores };
+    });
+    function compareScores(a, b) {
+      if (a.total !== b.total) return b.total - a.total;
+      for (let r = last; r >= 0; r -= 1) if (a.roundScores[r] !== b.roundScores[r]) return b.roundScores[r] - a.roundScores[r];
+      return 0;
+    }
+    // Player IDs stabilize display order only. They never break a score tie.
+    // The legacy priority field remains readable but has no ranking effect.
+    rows.sort((a, b) => compareScores(a, b) || IDS.indexOf(a.id) - IDS.indexOf(b.id));
+    let rank = 1;
+    return rows.map((row, i) => {
+      if (i > 0 && compareScores(rows[i - 1], row) !== 0) rank = i + 1;
+      return { ...row, rank };
+    });
+  }
+  function needsRematch(state) {
+    if (!complete(state)) return false;
+    const rows = rankings(state, 9);
+    return new Set(rows.map(row => row.rank)).size < rows.length;
+  }
+  function finalStandings(state) {
+    requireRule(complete(state), '10라운드를 모두 정산한 뒤 최종 순위를 확인할 수 있습니다.');
+    requireRule(!needsRematch(state), '모든 라운드의 득점이 같은 플레이어가 있어 재경기가 필요합니다.');
+    const rows = rankings(state, 9).map(row => ({ id: row.id, total: row.total, scoreRank: row.rank, prediction: state.predictions[row.id], success: state.predictions[row.id] === row.rank }));
+    rows.sort((a, b) => Number(b.success) - Number(a.success) || a.scoreRank - b.scoreRank);
+    return rows.map((row, i) => ({ ...row, finalRank: i + 1 }));
+  }
+  function addMeeting(state, participantIds) {
+    writableRound(state);
+    requireRule(Array.isArray(participantIds) && participantIds.length >= 2 && participantIds.length <= 5 && participantIds.every(isId) && new Set(participantIds).size === participantIds.length, '독대에 참여할 서로 다른 플레이어를 두 명 이상 선택해 주세요.');
+    requireRule(participantIds.every(id => remainingGarnets(state, id) >= 1), '참여자 모두에게 가넷이 한 개 이상 필요합니다.');
+    const next = copy(state);
+    next.meetings.push({ roundIndex: next.roundIndex, participants: participantIds.slice() });
+    return next;
+  }
+
+  function deepEqual(a, b) {
+    if (a === b) return true;
+    if (Array.isArray(a) || Array.isArray(b)) return Array.isArray(a) && Array.isArray(b) && a.length === b.length && a.every((value, i) => deepEqual(value, b[i]));
+    if (!isObject(a) || !isObject(b)) return false;
+    const keys = Object.keys(a).sort();
+    return deepEqual(keys, Object.keys(b).sort()) && keys.every(key => deepEqual(a[key], b[key]));
+  }
+  function validateState(raw) {
+    requireRule(isObject(raw), '저장 파일에 게임 상태가 없습니다.');
+    let serialized;
+    try { serialized = JSON.stringify(raw); } catch (_) { throw new Error('읽을 수 없는 저장 파일입니다.'); }
+    requireRule(typeof serialized === 'string' && serialized.length <= 500000, '저장 파일의 크기 또는 형식이 올바르지 않습니다.');
+    const state = JSON.parse(serialized);
+    requireRule(state.version === 1, '지원하지 않는 저장 파일 버전입니다.');
+    requireRule(Array.isArray(state.players) && state.players.length === 5, '플레이어 정보가 올바르지 않습니다.');
+    state.players.forEach((p, i) => {
+      requireRule(isObject(p) && p.id === IDS[i] && typeof p.name === 'string' && p.name.trim().length > 0 && p.name.length <= 40 && !/[\u0000-\u001f]/.test(p.name) && integer(p.startingGarnets, 0, 1000000), '플레이어 이름 또는 시작 가넷이 올바르지 않습니다.');
+    });
+    requireRule(validPriority(state.priority), '저장된 동점 우선순위가 올바르지 않습니다.');
+    requireRule(isObject(state.predictions) && Object.keys(state.predictions).length === 5 && IDS.every(id => state.predictions[id] === null || integer(state.predictions[id], 1, 5)), '저장된 예측 순위가 올바르지 않습니다.');
+    requireRule(typeof state.started === 'boolean' && typeof state.predictionsLocked === 'boolean' && state.started === state.predictionsLocked, '게임 시작 상태가 올바르지 않습니다.');
+    if (state.started) requireRule(IDS.every(id => integer(state.predictions[id], 1, 5)), '확정된 예측 순위가 누락되어 있습니다.');
+    requireRule(integer(state.roundIndex, 0, 9) && Array.isArray(state.rounds) && state.rounds.length === 10, '저장된 라운드 정보가 올바르지 않습니다.');
+    requireRule(isObject(state.purchases) && Object.keys(state.purchases).length === 5, '아이템 구매 기록이 올바르지 않습니다.');
+    IDS.forEach(id => {
+      const purchase = state.purchases[id];
+      requireRule(isObject(purchase) && [null, 'plus', 'minus'].includes(purchase.boost) && typeof purchase.zero === 'boolean', '아이템 구매 기록이 올바르지 않습니다.');
+    });
+    requireRule(Array.isArray(state.meetings), '독대 기록이 올바르지 않습니다.');
+    state.meetings.forEach(meeting => {
+      requireRule(isObject(meeting) && integer(meeting.roundIndex, 0, state.roundIndex) && Array.isArray(meeting.participants) && meeting.participants.length >= 2 && meeting.participants.length <= 5 && meeting.participants.every(isId) && new Set(meeting.participants).size === meeting.participants.length, '독대 참여자 또는 라운드가 올바르지 않습니다.');
+    });
+    requireRule(IDS.every(id => remainingGarnets(state, id) >= 0), '보유 가넷보다 많은 가넷을 사용한 기록입니다.');
+    let resolvedCount = 0;
+    let seenUnresolved = false;
+    state.rounds.forEach((round, r) => {
+      requireRule(isObject(round) && isObject(round.submissions) && typeof round.resolved === 'boolean', '카드 제출 기록이 올바르지 않습니다.');
+      requireRule(Object.keys(round.submissions).every(isId), '알 수 없는 플레이어의 제출 기록입니다.');
+      if (round.resolved) {
+        requireRule(!seenUnresolved && state.started, '라운드 정산 순서가 올바르지 않습니다.');
+        resolvedCount += 1;
+        requireRule(IDS.every(id => own(round.submissions, id)), '정산된 라운드의 제출 카드가 누락되었습니다.');
+      } else {
+        seenUnresolved = true;
+        requireRule(round.results === null, '미정산 라운드에 결과가 저장되어 있습니다.');
+      }
+      if (r > state.roundIndex || !state.started) requireRule(Object.keys(round.submissions).length === 0 && !round.resolved, '진행하지 않은 라운드에 제출 기록이 있습니다.');
+      Object.keys(round.submissions).forEach(id => checkSubmission(state, id, round.submissions[id], r));
+      if (round.resolved) requireRule(deepEqual(round.results, calculateResults(state, r)), '저장된 득점 또는 받은 카드 기록이 실제 제출과 일치하지 않습니다.');
+    });
+    requireRule(state.roundIndex === resolvedCount || (resolvedCount > 0 && state.roundIndex === resolvedCount - 1), '현재 라운드와 정산 기록이 일치하지 않습니다.');
+    if (!state.started) requireRule(state.roundIndex === 0 && resolvedCount === 0 && state.meetings.length === 0, '시작 전 게임 상태가 올바르지 않습니다.');
+    return state;
+  }
+
+  return Object.freeze({ NUMBERS, ITEM_VALUES, ITEM_COSTS, createGame, setPrediction, setPriority, lockPredictions, buyItem, availableCards, availableItems, submit, unsubmit, resolveRound, nextRound, rankings, needsRematch, finalStandings, remainingGarnets, addMeeting, validateState });
+});
+</script>
+<script>(function(){
+  'use strict';
+  const E=window.GiveTake, KEY='give-take-dealer-v1', IDS=['p1','p2','p3','p4','p5'];
+  const MEETING_MS=10*60*1000;
+  const $=id=>document.getElementById(id), clone=x=>JSON.parse(JSON.stringify(x));
+  const esc=x=>String(x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const signed=n=>n>0?'+'+n:String(n).replace('-','−');
+  const itemName=k=>signed(E.ITEM_VALUES[k]);
+  const opts=(players,selected,exclude)=>players.filter(p=>p.id!==exclude).map(p=>'<option value="'+p.id+'"'+(p.id===selected?' selected':'')+'>'+esc(p.name)+'</option>').join('');
+  let dealer=false, selected='p1', storePlayer='p1', drafts={}, activeSlot='self', undoStack=[], redoStack=[], saved=true, lastFocus=null;
+  let statusText='진행자 보기를 켜면 경기 준비를 시작할 수 있습니다.', statusError=false;
+  function fresh(){
+    return {version:3,game:E.createGame(IDS.map((id,i)=>({name:'플레이어 '+String.fromCharCode(65+i),garnets:0}))),published:Array(10).fill(false),finalRevealed:false,timer:{active:null,deadline:null,remaining:MEETING_MS,done:[]}};
+  }
+  function validateSession(raw){
+    if(!raw||![1,2,3].includes(raw.version))throw Error('지원하지 않는 경기 파일입니다.');
+    const game=E.validateState(raw.game);
+    if(!Array.isArray(raw.published)||raw.published.length!==10||raw.published.some((x,i)=>typeof x!=='boolean'||(x&&!game.rounds[i].resolved)))throw Error('결과 공개 기록이 올바르지 않습니다.');
+    for(let i=0;i<game.roundIndex;i++)if(!raw.published[i])throw Error('이전 라운드 공개 기록이 누락되었습니다.');
+    if(typeof raw.finalRevealed!=='boolean'||(raw.finalRevealed&&!raw.published[9]))throw Error('최종 결과 공개 기록이 올바르지 않습니다.');
+    const t=raw.timer?clone(raw.timer):null, timerLimit=raw.version<3?180000:MEETING_MS;
+    if(!t||!Array.isArray(t.done)||new Set(t.done).size!==t.done.length||t.done.some(i=>!Number.isInteger(i)||i<0||i>=game.meetings.length))throw Error('독대 완료 기록이 올바르지 않습니다.');
+    if(t.active!==null&&(!Number.isInteger(t.active)||t.active<0||t.active>=game.meetings.length||t.done.includes(t.active)||game.meetings[t.active].roundIndex!==game.roundIndex))throw Error('진행 중인 독대 기록을 확인하세요.');
+    if(!Number.isFinite(t.remaining)||t.remaining<0||t.remaining>timerLimit||(t.deadline!==null&&(!Number.isFinite(t.deadline)||t.deadline<=0||t.deadline>Date.now()+timerLimit+1000||t.active===null)))throw Error('독대 타이머 기록이 올바르지 않습니다.');
+    if(raw.version<3){
+      t.remaining=t.active===null?MEETING_MS:t.remaining+MEETING_MS-180000;
+      if(t.deadline!==null)t.deadline+=MEETING_MS-180000;
+    }
+    for(let i=0;i<game.meetings.length;i++)if(game.rounds[game.meetings[i].roundIndex].resolved&&!t.done.includes(i))throw Error('완료되지 않은 독대가 있는 정산 기록입니다.');
+    return {version:3,game,published:raw.published.slice(),finalRevealed:raw.finalRevealed&&!E.needsRematch(game),timer:clone(t)};
+  }
+  let session=fresh();
+  try{const raw=localStorage.getItem(KEY);if(raw){session=validateSession(JSON.parse(raw));statusText='저장된 경기를 이어서 진행합니다. 공개 보기로 열었습니다.';}}catch(err){saved=false;statusText='저장 상태를 읽지 못했습니다. 경기 파일을 불러오거나 새로 시작하세요.';statusError=true;}
+  function save(){
+    try{localStorage.setItem(KEY,JSON.stringify(session));saved=true;}catch(err){saved=false;}
+    $('save-status').textContent=saved?'이 브라우저에 자동 저장':'자동 저장 불가 · 경기 파일로 저장하세요';
+  }
+  function say(text,error){statusText=text;statusError=!!error;$('status').textContent=text;$('status').classList.toggle('error',!!error);}
+  function commit(fn,message,resetDraft){
+    if(!dealer)return say('진행자 보기를 켜세요.',true);
+    try{
+      const next=clone(session);fn(next);
+      const valid=validateSession(next);
+      undoStack.push(clone(session));if(undoStack.length>50)undoStack.shift();redoStack=[];
+      session=valid;if(resetDraft)drafts={};save();render();if(message)say(message,false);return true;
+    }catch(err){render();say(err.message||String(err),true);return false;}
+  }
+  function actGame(fn,message,resetDraft){return commit(n=>{n.game=fn(n.game);},message,resetDraft);}
+  function name(id){return session.game.players.find(p=>p.id===id).name;}
+  function round(){return session.game.rounds[session.game.roundIndex];}
+  function lastResolved(){let i=-1;session.game.rounds.forEach((r,k)=>{if(r.resolved)i=k;});return i;}
+  function total(id,through){return E.rankings(session.game,through===undefined?lastResolved():through).find(p=>p.id===id).total;}
+  function isFinished(){return session.game.rounds[9].resolved;}
+  function rematch(){return E.needsRematch(session.game);}
+  function rankLabel(row,rows){return (rows.filter(x=>x.rank===row.rank).length>1?'공동 ':'')+row.rank+'위';}
+  function pendingMeetings(){return session.game.meetings.map((m,i)=>({m,i})).filter(x=>x.m.roundIndex===session.game.roundIndex&&!session.timer.done.includes(x.i));}
+  function ensureMeetingsDone(){if(pendingMeetings().length)throw Error('접수한 독대를 모두 완료한 뒤 진행하세요.');}
+  function currentCards(id){const cards=E.availableCards(session.game,id);const s=round().submissions[id];return round().resolved&&s?cards.filter(v=>v!==s.self&&v!==s.other):cards;}
+  function currentItems(id){const kinds=E.availableItems(session.game,id);const s=round().submissions[id];return round().resolved&&s?kinds.filter(k=>!s.items.some(x=>x.kind===k)):kinds;}
+  function draftFor(id){
+    const key=session.game.roundIndex+':'+id;
+    if(!drafts[key])drafts[key]=round().submissions[id]?clone(round().submissions[id]):{self:null,other:null,target:IDS.find(x=>x!==id),items:[]};
+    return drafts[key];
+  }
+  function renderSetup(){
+    $('setup').hidden=!dealer||session.game.started;if($('setup').hidden){$('setup').innerHTML='';return;}
+    const g=session.game;
+    $('setup').innerHTML='<div class="panel-title"><h2>경기 준비</h2><span class="tag">5명 · 10라운드</span></div><div class="setup-grid">'+g.players.map((p,i)=>'<div class="setup-person"><div class="setup-badge">'+String.fromCharCode(65+i)+'</div><label class="field">플레이어 이름<input data-setup-name="'+p.id+'" maxlength="40" value="'+esc(p.name)+'"></label><label class="field">보유 가넷<input type="number" data-setup-garnets="'+p.id+'" min="0" max="1000000" step="1" value="'+p.startingGarnets+'"></label><label class="field">비공개 점수 순위 예측<select data-prediction="'+p.id+'"><option value="">선택 전</option>'+IDS.map((x,j)=>'<option value="'+(j+1)+'"'+(g.predictions[p.id]===j+1?' selected':'')+'>'+(j+1)+'위</option>').join('')+'</select></label></div>').join('')+'</div><p class="tiny muted" style="margin-top:13px">실제 보유 가넷과 각자의 비공개 점수 순위 예측을 입력하세요. 같은 등수를 여러 명이 예측할 수 있습니다.</p><div class="setup-controls"><button data-action="start" class="primary"'+(Object.values(g.predictions).some(x=>x===null)?' disabled':'')+'>예측 봉인 · 1라운드 시작</button></div>';
+  }
+  function renderTable(){
+    const g=session.game,r=round(),revealed=session.published[g.roundIndex],ready=Object.keys(r.submissions).length;
+    $('metrics').innerHTML='<div class="metric"><span>현재 단계</span><strong>'+(rematch()&&(dealer||revealed)?'재경기 필요':session.finalRevealed?'경기 종료':!g.started?'경기 준비':r.resolved?(revealed?'결과 공개':'공개 대기'):'비공개 제출')+'</strong></div><div class="metric"><span>카드 제출</span><strong class="serif">'+(g.started?ready:0)+' <small>/ 5</small></strong></div><div class="metric"><span>'+(dealer?'정산한 라운드':'진행 라운드')+'</span><strong class="serif">'+(dealer?lastResolved()+1:g.started?g.roundIndex+1:0)+' <small>/ 10</small></strong></div>';
+    $('round-number').innerHTML='ROUND '+String(g.roundIndex+1).padStart(2,'0')+' <span>/ 10</span>';
+    $('phase-name').textContent=!g.started?'예측 봉인 전':r.resolved?(revealed?'공개된 라운드 결과':'득점 계산 완료 · 공개 대기'):'자신에게 한 장, 상대에게 한 장';
+    $('round-track').innerHTML=g.rounds.map((rr,i)=>'<span class="round-dot'+(rr.resolved?' done':'')+(i===g.roundIndex?' current':'')+'" aria-label="'+(i+1)+'라운드'+(rr.resolved?' 정산 완료':'')+'">'+(i+1)+'</span>').join('');
+    $('seats').innerHTML=g.players.map((p,i)=>{
+      const result=r.results&&r.results.find(x=>x.id===p.id),count=revealed?result.count:null;
+      return '<article class="seat"><div class="seat-avatar">'+String.fromCharCode(65+i)+'</div><div class="seat-name">'+esc(p.name)+'</div><div class="envelope'+(revealed?' opened':'')+'" aria-hidden="true"><span class="back" data-count="'+(count===null?'':count)+'"></span><span class="back" data-count="'+(count===null?'':count)+'"></span></div><div class="seat-status'+(r.submissions[p.id]?' sealed':'')+'">'+(!g.started?'참가 준비':r.submissions[p.id]?'제출 봉인 완료':'제출 대기')+'</div><div class="count-label">'+(revealed?'<b>'+count+'</b>장 받음':'받은 장수 비공개')+'</div>'+(dealer?'<div class="seat-private">누적 득점<strong>'+signed(total(p.id))+'</strong>예측 '+(g.predictions[p.id]||'—')+'위 · 남은 카드 '+currentCards(p.id).length+'장</div>':'')+'</article>';
+    }).join('');
+    $('maximum').textContent=revealed?signed(Math.max.apply(null,r.results.map(x=>x.score))):'—';
+    $('minimum').textContent=revealed?signed(Math.min.apply(null,r.results.map(x=>x.score))):'—';
+    $('table-message').textContent=session.finalRevealed?'예측 성공자를 먼저, 각 그룹 안에서는 점수 순위대로 배치합니다.':!g.started?'각자의 점수 순위 예측을 비공개로 봉인합니다.':revealed?'받은 카드 장수와 최고·최저 득점만 공개합니다. 개인 득점은 딜러가 별도로 안내합니다.':r.resolved?'딜러가 결과를 확인하고 공개 버튼을 누르면 카드 장수와 최고·최저 득점이 표시됩니다.':'카드와 아이템을 함께 비공개로 제출합니다. 모든 제출이 끝나면 득점을 계산합니다.';
+    $('priority-strip').innerHTML='<span class="tiny muted">점수 동점은 가장 최근 라운드 득점부터 역순으로 비교합니다.</span>';
+    $('public-guide').hidden=dealer||g.started;
+  }
+  function renderEditor(){
+    $('editor').hidden=!dealer||!session.game.started||round().resolved;
+    if($('editor').hidden){$('editor').innerHTML='';return;}
+    const g=session.game,d=draftFor(selected),sealed=!!round().submissions[selected],cards=E.availableCards(g,selected),items=E.availableItems(g,selected);
+    $('editor').innerHTML='<div class="editor-head"><h2>비공개 카드 제출</h2><span class="tag">진행자 전용</span></div><div class="player-tabs">'+g.players.map(p=>'<button class="player-tab'+(p.id===selected?' selected':'')+'" data-select-player="'+p.id+'">'+esc(p.name)+(round().submissions[p.id]?'<span class="check">✓</span>':'')+'</button>').join('')+'</div><div class="assignment-grid"><div class="assignment'+(activeSlot==='self'?' active':'')+'" data-slot="self" role="button" tabindex="'+(sealed?'-1':'0')+'" aria-label="자신에게 사용할 카드 선택"><div class="assignment-label"><span>자신에게</span><span>'+esc(name(selected))+'</span></div><div class="assignment-value">'+(d.self===null?'—':signed(d.self))+'</div></div><div class="assignment'+(activeSlot==='other'?' active':'')+'" data-slot="other" role="button" tabindex="'+(sealed?'-1':'0')+'" aria-label="상대에게 사용할 카드 선택"><div class="assignment-label"><span>다른 플레이어에게</span><span>대상 선택</span></div><div class="assignment-other"><div class="assignment-value">'+(d.other===null?'—':signed(d.other))+'</div><select id="target-select" aria-label="상대 카드를 받을 플레이어"'+(sealed?' disabled':'')+'>'+opts(g.players,d.target,selected)+'</select></div></div></div><div class="hand-grid">'+E.NUMBERS.map(v=>'<button class="number-card'+(v<0?' minus':'')+(!cards.includes(v)?' used':'')+((d.self===v||d.other===v)?' chosen':'')+'" data-card="'+v+'"'+(!cards.includes(v)||sealed?' disabled':'')+' aria-label="'+signed(v)+(d.self===v?' 자신에게 선택':d.other===v?' 상대에게 선택':!cards.includes(v)?' 사용 완료':' 카드')+'"><span class="corner">'+signed(v)+'</span>'+signed(v)+'<span class="selection-label">'+(d.self===v?'자신':d.other===v?'상대':!cards.includes(v)?'사용 완료':'')+'</span></button>').join('')+'</div><p class="editor-hint">'+(sealed?'제출 내용이 봉인되었습니다. 입력 오류는 아래 정정 버튼으로 수정할 수 있습니다.':'사용할 칸을 선택한 뒤 숫자 카드를 누르세요. 먼저 자신에게 쓸 카드를 선택하면 상대 카드 선택으로 넘어갑니다.')+'</p>'+(items.length?'<div class="item-editor"><div class="divider-label">추가 아이템 · 기본 카드와 함께 제출</div>'+items.map(k=>{const choice=d.items.find(x=>x.kind===k);return '<div class="item-row"><label><input type="checkbox" data-item-check="'+k+'"'+(choice?' checked':'')+(sealed?' disabled':'')+'>'+itemName(k)+'</label><select data-item-target="'+k+'" aria-label="'+itemName(k)+' 아이템 대상"'+(!choice||sealed?' disabled':'')+'>'+opts(g.players,choice?choice.target:selected)+'</select></div>';}).join('')+'</div>':'<p class="tiny muted subtle-line">사용 가능한 추가 아이템이 없습니다.</p>')+'<div class="editor-actions"><span class="editor-lock">'+(sealed?'✓ 제출 봉인 완료':'선택 가능 '+cards.length+'장')+'</span>'+(sealed?'<button data-action="correct" class="btn-sm">제출 입력 정정</button>':'<button data-action="clear-draft" class="btn-sm">선택 지우기</button><button data-action="submit" class="primary">카드 제출 확정</button>')+'</div>';
+  }
+  function renderPrivateResults(){
+    const r=round(),g=session.game;
+    $('private-results').hidden=!dealer||!r.resolved;
+    if($('private-results').hidden){$('private-results').innerHTML='';return;}
+    let html='<div class="panel-title"><h2>개인 득점 안내</h2><span class="tag">진행자 전용</span></div><table class="ranking"><thead><tr><th>플레이어</th><th>받은 장수</th><th>이번 득점</th><th>누적 득점</th><th>개인 안내</th></tr></thead><tbody>'+g.players.map(p=>{const rr=r.results.find(x=>x.id===p.id);return '<tr><td>'+esc(p.name)+'</td><td>'+rr.count+'장</td><td class="'+(rr.score<0?'negative':'positive')+'">'+signed(rr.score)+'</td><td>'+signed(total(p.id))+'</td><td><button class="btn-sm" data-private-message="'+p.id+'"'+(!session.published[g.roundIndex]?' disabled':'')+'>안내문</button></td></tr>';}).join('')+'</tbody></table><p class="tiny muted" style="margin-top:10px">개인 안내는 라운드 결과를 공개한 뒤 사용할 수 있습니다.</p>';
+    if(isFinished()&&!session.finalRevealed)html+='<div class="subtle-line"><h3>'+(rematch()?'재경기 필요':'최종 결과 미리보기')+'</h3>'+(rematch()?'<p class="tiny muted">10라운드의 각 득점까지 같은 플레이어가 있습니다. 기록을 저장하고 새 경기를 준비하세요.</p>':finalTable(true))+'</div>';
+    $('private-results').innerHTML=html;
+  }
+  function finalTable(showTotal){
+    if(rematch())return '<p class="tiny muted">재경기가 필요하여 최종 순위를 확정하지 않습니다.</p>';
+    return '<table class="ranking"><thead><tr><th>최종 순위</th><th>플레이어</th><th>점수 순위</th><th>예측</th><th>판정</th>'+(showTotal?'<th>누적 점수</th>':'')+'</tr></thead><tbody>'+E.finalStandings(session.game).map(p=>'<tr class="'+(p.success?'success':'')+'"><td class="rank-num">'+p.finalRank+'</td><td>'+esc(name(p.id))+'</td><td>'+p.scoreRank+'위</td><td>'+p.prediction+'위</td><td class="'+(p.success?'success-mark':'fail-mark')+'">'+(p.success?'예측 성공':'예측 실패')+'</td>'+(showTotal?'<td>'+signed(p.total)+'</td>':'')+'</tr>').join('')+'</tbody></table>';
+  }
+  function renderRankPanels(){
+    $('checkpoint').hidden=!session.published[4];
+    const middle=session.published[4]?E.rankings(session.game,4):[];
+    $('checkpoint').innerHTML=session.published[4]?'<div class="panel-title"><h2>5라운드 중간 점수 순위</h2><span class="tag">5라운드 종료 시점</span></div><div class="checkpoint-list">'+middle.map(p=>'<div class="checkpoint-person"><b style="font-size:18px">'+rankLabel(p,middle)+'</b><span>'+esc(name(p.id))+'</span></div>').join('')+'</div><p class="tiny muted" style="margin-top:10px">누적 점수는 비공개입니다. 현재까지의 모든 라운드 득점이 같으면 공동 순위로 표시합니다.</p>':'';
+    $('final-panel').hidden=!session.finalRevealed&&!(rematch()&&session.published[9]);
+    $('final-panel').innerHTML=rematch()&&session.published[9]?'<div class="panel-title"><h2>재경기 필요</h2><span class="tag">점수 순위 미확정</span></div><p class="tiny muted">10라운드의 각 라운드 득점까지 같은 플레이어가 있어 재경기를 진행합니다. 이번 기록은 경기 파일로 저장할 수 있습니다.</p>':session.finalRevealed?'<div class="panel-title"><h2>최종 순위</h2><span class="eyebrow">THE FINAL ORDER</span></div>'+finalTable(dealer)+'<p class="tiny muted" style="margin-top:12px">예측 성공자 점수 순위순 → 예측 실패자 점수 순위순</p>':'';
+  }
+  function renderOperations(){
+    const g=session.game,r=round(),count=Object.keys(r.submissions).length;
+    $('submission-count').textContent=count+' / 5 제출';
+    $('submission-progress').innerHTML=g.players.map(p=>'<span class="selection-dot'+(r.submissions[p.id]?' ready':'')+'">'+esc(p.name)+(r.submissions[p.id]?' ✓':'')+'</span>').join('');
+    $('resolve').disabled=!g.started||r.resolved||count!==5||pendingMeetings().length>0;
+    $('publish').disabled=!r.resolved||session.published[g.roundIndex];
+    $('public-message').disabled=!session.published[g.roundIndex];
+    $('next').disabled=!r.resolved||!session.published[g.roundIndex]||session.finalRevealed||rematch()||pendingMeetings().length>0;
+    $('next').textContent=rematch()?'재경기 필요':g.roundIndex===9?'최종 순위 공개':'다음 라운드';
+    $('operation-note').textContent=!g.started?'경기 준비에서 각자의 비공개 예측을 확정하세요.':rematch()?'10라운드의 각 득점까지 같아 재경기가 필요합니다. 기록을 저장한 뒤 새 경기를 준비하세요.':pendingMeetings().length?'접수한 독대를 완료하면 라운드 정산을 진행할 수 있습니다.':!r.resolved?'다섯 명의 제출이 봉인되면 득점을 계산하세요.':!session.published[g.roundIndex]?'득점 계산 완료. 결과 공개 시 카드 장수와 최고·최저 득점이 표시됩니다.':g.roundIndex===4?'중간 점수 순위가 함께 공개되었습니다. 개인 득점을 안내한 뒤 진행하세요.':g.roundIndex===9?'개인 득점을 안내한 뒤 최종 순위와 예측을 공개하세요.':'개인 득점을 안내한 뒤 다음 라운드로 진행하세요.';
+  }
+  function renderStore(){
+    const g=session.game,purchase=g.purchases[storePlayer],available=currentItems(storePlayer),garnets=E.remainingGarnets(g,storePlayer);
+    $('store-player').innerHTML=opts(g.players,storePlayer);
+    $('store').innerHTML='<div class="player-stat"><span>남은 가넷</span><b>'+garnets+'개</b></div><div class="item-store">'+['plus','minus','zero'].map(k=>'<button data-buy="'+k+'"'+(isFinished()||(k==='zero'?purchase.zero:purchase.boost!==null)||garnets<E.ITEM_COSTS[k]?' disabled':'')+'><strong>'+itemName(k)+'</strong>'+E.ITEM_COSTS[k]+'가넷</button>').join('')+'</div><div class="item-inventory">구매: '+(purchase.boost?itemName(purchase.boost):'±11 없음')+' / '+(purchase.zero?'0 구매':'0 없음')+'<br>미사용: '+(available.length?available.map(itemName).join(', '):'없음')+'</div>';
+  }
+  function renderHistory(){
+    const records=session.game.rounds.map((r,i)=>({r,i})).filter(x=>x.r.resolved&&(dealer||session.published[x.i]));
+    $('history-content').innerHTML=records.length?records.map(({r,i})=>'<details><summary><span class="gold-text">'+String(i+1).padStart(2,'0')+' ROUND</span><span>'+(session.published[i]?'공개 완료':'공개 전')+' · 최고 '+signed(Math.max.apply(null,r.results.map(x=>x.score)))+' / 최저 '+signed(Math.min.apply(null,r.results.map(x=>x.score)))+'</span></summary><div class="history-counts">'+r.results.map(x=>esc(name(x.id))+' '+x.count+'장').join(' · ')+'</div>'+(dealer?'<table class="audit"><thead><tr><th>플레이어</th><th>득점</th><th>받은 카드 · 제출자</th></tr></thead><tbody>'+r.results.map(x=>'<tr><td>'+esc(name(x.id))+'</td><td>'+signed(x.score)+'</td><td>'+x.received.map(c=>signed(c.value)+' ('+esc(name(c.from))+(c.kind!=='number'?'·아이템':'')+')').join(', ')+'</td></tr>').join('')+'</tbody></table>':'')+'</details>').join(''):'<div class="empty">정산된 라운드 기록이 여기에 쌓입니다.</div>';
+  }
+  function renderMeetings(){
+    const g=session.game,t=session.timer,list=g.meetings.map((m,i)=>({m,i})).filter(x=>x.m.roundIndex===g.roundIndex);
+    $('meeting-count').textContent=list.length+'회 접수';
+    $('meeting-choice').innerHTML=g.players.map(p=>'<label><input type="checkbox" data-meeting-player="'+p.id+'"'+(!g.started||round().resolved||E.remainingGarnets(g,p.id)<1?' disabled':'')+'><span>'+esc(p.name)+'</span></label>').join('');
+    $('meeting-add').disabled=!g.started||round().resolved;
+    const first=pendingMeetings()[0];
+    $('meeting-queue').innerHTML=list.map(({m,i},j)=>'<div class="meeting-ticket"><span>'+(j+1)+'. '+m.participants.map(id=>esc(name(id))).join(', ')+'<br>'+(t.done.includes(i)?'완료':t.active===i?'진행 중':'접수 대기')+'</span>'+(!t.done.includes(i)&&t.active===null?'<button data-meeting-start="'+i+'"'+(first&&first.i===i?'':' disabled')+'>시작</button>':'')+'</div>').join('');
+    renderClock();
+  }
+  function renderClock(){
+    const t=session.timer,remaining=t.active===null?MEETING_MS:t.deadline===null?t.remaining:Math.max(0,t.deadline-Date.now());
+    const seconds=Math.ceil(remaining/1000);
+    $('meeting-clock').textContent=String(Math.floor(seconds/60)).padStart(2,'0')+':'+String(seconds%60).padStart(2,'0');
+    $('meeting-caption').textContent=t.active===null?'독대 접수 순서대로 진행':t.deadline===null?'일시정지':session.game.meetings[t.active].participants.map(name).join(' · ');
+    $('timer-pause').disabled=t.active===null;$('timer-finish').disabled=t.active===null;
+    $('timer-pause').textContent=t.deadline===null&&t.active!==null?'다시 시작':'일시정지';
+  }
+  function render(){
+    document.body.classList.toggle('dealer-view',dealer);
+    $('view-toggle').setAttribute('aria-checked',String(dealer));$('view-label').textContent='진행자 보기 '+(dealer?'ON':'OFF');
+    $('privacy-note').hidden=!dealer;$('sidebar').hidden=!dealer;
+    renderSetup();renderTable();renderEditor();renderPrivateResults();renderRankPanels();renderHistory();
+    if(dealer){renderOperations();renderStore();renderMeetings();}
+    else{$('store').innerHTML='';$('meeting-choice').innerHTML='';$('meeting-queue').innerHTML='';$('submission-progress').innerHTML='';$('operation-note').textContent='';$('meeting-caption').textContent='';}
+    ['undo','undo-alt'].forEach(id=>{$(id).disabled=!dealer||!undoStack.length;});
+    ['redo','redo-alt'].forEach(id=>{$(id).disabled=!dealer||!redoStack.length;});
+    $('save-status').textContent=saved?'이 브라우저에 자동 저장':'자동 저장 불가 · 경기 파일로 저장하세요';
+    say(statusText,statusError);
+  }
+  function openModal(title,body,actions){
+    lastFocus=document.activeElement;
+    $('modal-root').innerHTML='<section class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title"><div class="between"><h2 id="modal-title">'+esc(title)+'</h2><button id="modal-close" class="quiet btn-sm" aria-label="창 닫기">닫기</button></div><div class="modal-body">'+body+'</div><div class="modal-actions">'+actions+'</div></section>';
+    $('modal-root').hidden=false;$('modal-close').onclick=closeModal;$('modal-close').focus();
+  }
+  function closeModal(){ $('modal-root').hidden=true;$('modal-root').innerHTML='';if(lastFocus&&lastFocus.isConnected)lastFocus.focus(); }
+  function confirmAction(title,message,fn){
+    openModal(title,'<p>'+esc(message)+'</p>','<button id="confirm-cancel">취소</button><button id="confirm-go" class="primary">확인</button>');
+    $('confirm-cancel').onclick=closeModal;$('confirm-go').onclick=()=>{closeModal();fn();};
+  }
+  function showMessage(title,text,explanation){
+    openModal(title,'<p>'+esc(explanation)+'</p><textarea id="message-text" readonly aria-label="전달할 안내문">'+esc(text)+'</textarea>','<button id="copy-message" class="primary">안내문 복사</button>');
+    $('copy-message').onclick=async()=>{
+      try{
+        if(navigator.clipboard&&navigator.clipboard.writeText)await navigator.clipboard.writeText(text);
+        else{$('message-text').select();if(!document.execCommand('copy'))throw Error('copy');}
+        if($('copy-message'))$('copy-message').textContent='복사 완료';
+      }catch(err){if($('message-text')){$('message-text').focus();$('message-text').select();$('copy-message').textContent='선택된 안내문을 복사하세요';}}
+    };
+  }
+  const actions={
+    'start':()=>confirmAction('예측 봉인 · 경기 시작','다섯 명의 예측을 봉인하고 1라운드를 시작합니다.',()=>actGame(g=>E.lockPredictions(g),'1라운드가 시작되었습니다. 카드와 추가 아이템을 함께 입력하세요.',true)),
+    'clear-draft':()=>{delete drafts[session.game.roundIndex+':'+selected];activeSlot='self';renderEditor();},
+    'submit':()=>actGame(g=>E.submit(g,selected,draftFor(selected)),name(selected)+'의 제출을 봉인했습니다.'),
+    'correct':()=>confirmAction('제출 입력 정정','진행자가 입력 오류를 정정하기 위해 이 플레이어의 봉인을 해제합니다.',()=>actGame(g=>E.unsubmit(g,selected),'봉인을 해제했습니다. 입력을 정정하고 다시 제출하세요.'))
+  };
+  document.addEventListener('click',event=>{
+    const button=event.target.closest('button'),slot=event.target.closest('[data-slot]');
+    if(slot&&!event.target.closest('select')&&dealer&&!round().submissions[selected]){activeSlot=slot.dataset.slot;renderEditor();}
+    if(!button||button.disabled||!dealer)return;
+    try{
+      if(button.dataset.action&&actions[button.dataset.action])actions[button.dataset.action]();
+      if(button.dataset.selectPlayer){selected=button.dataset.selectPlayer;activeSlot='self';renderEditor();}
+      if(button.dataset.card!==undefined){
+        const d=draftFor(selected),v=Number(button.dataset.card),other=activeSlot==='self'?'other':'self';
+        if(d[other]===v)throw Error('서로 다른 두 장을 선택하세요.');
+        d[activeSlot]=d[activeSlot]===v?null:v;
+        if(activeSlot==='self'&&d.self!==null)activeSlot='other';
+        renderEditor();
+      }
+      if(button.dataset.buy)actGame(g=>E.buyItem(g,storePlayer,button.dataset.buy),name(storePlayer)+' · '+itemName(button.dataset.buy)+' 아이템 구매 완료');
+      if(button.dataset.privateMessage){
+        const id=button.dataset.privateMessage,rr=round().results.find(x=>x.id===id);
+        const text='[기브 & 테이크 · '+(session.game.roundIndex+1)+'라운드]\n'+name(id)+'님의 이번 득점: '+signed(rr.score)+'점\n누적 득점: '+signed(total(id))+'점\n받은 카드: '+rr.count+'장';
+        showMessage(name(id)+' · 개인 안내',text,'이 안내문은 해당 플레이어에게만 전달하세요.');
+      }
+      if(button.dataset.meetingStart!==undefined){
+        const i=Number(button.dataset.meetingStart),first=pendingMeetings()[0];
+        if(!first||first.i!==i)throw Error('접수 순서대로 독대를 시작하세요.');
+        commit(n=>{if(n.timer.active!==null)throw Error('진행 중인 독대를 먼저 완료하세요.');n.timer.active=i;n.timer.remaining=MEETING_MS;n.timer.deadline=Date.now()+MEETING_MS;},'독대 타이머를 시작했습니다.');
+      }
+    }catch(err){say(err.message,true);}
+  });
+  document.addEventListener('change',event=>{
+    const t=event.target;if(!dealer)return;
+    if(t.dataset.setupName)commit(n=>{const p=n.game.players.find(x=>x.id===t.dataset.setupName);p.name=t.value.trim();},'플레이어 이름을 저장했습니다.');
+    if(t.dataset.setupGarnets)commit(n=>{n.game.players.find(x=>x.id===t.dataset.setupGarnets).startingGarnets=Number(t.value);},'보유 가넷을 저장했습니다.');
+    if(t.dataset.prediction)actGame(g=>E.setPrediction(g,t.dataset.prediction,t.value?Number(t.value):null),'비공개 예측을 입력했습니다.');
+    if(t.id==='target-select'){draftFor(selected).target=t.value;}
+    if(t.dataset.itemCheck){
+      const d=draftFor(selected),kind=t.dataset.itemCheck;d.items=d.items.filter(x=>x.kind!==kind);if(t.checked)d.items.push({kind,target:selected});renderEditor();
+    }
+    if(t.dataset.itemTarget){const x=draftFor(selected).items.find(x=>x.kind===t.dataset.itemTarget);if(x)x.target=t.value;}
+    if(t.id==='store-player'){storePlayer=t.value;renderStore();}
+  });
+  $('view-toggle').onclick=()=>{dealer=!dealer;closeModal();render();say(dealer?'진행자 보기 ON · 비공개 정보가 표시됩니다.':'공개 보기로 전환했습니다.',false);};
+  function undo(){
+    if(!dealer||!undoStack.length)return;redoStack.push(clone(session));session=undoStack.pop();drafts={};save();closeModal();render();say('직전 작업을 되돌렸습니다.',false);
+  }
+  function redo(){
+    if(!dealer||!redoStack.length)return;undoStack.push(clone(session));session=redoStack.pop();drafts={};save();render();say('되돌린 작업을 다시 적용했습니다.',false);
+  }
+  $('undo').onclick=undo;$('undo-alt').onclick=undo;$('redo').onclick=redo;$('redo-alt').onclick=redo;
+  $('resolve').onclick=()=>{ensureOperation(()=>{ensureMeetingsDone();actGame(g=>E.resolveRound(g),'득점을 계산했습니다. 확인 후 라운드 결과를 공개하세요.');});};
+  function ensureOperation(fn){if(!dealer)return;try{fn();}catch(err){say(err.message,true);}}
+  $('publish').onclick=()=>commit(n=>{
+    if(!n.game.rounds[n.game.roundIndex].resolved)throw Error('먼저 득점을 계산하세요.');
+    n.published[n.game.roundIndex]=true;
+  },session.game.roundIndex===4?'라운드 결과와 5라운드 중간 점수 순위를 공개했습니다.':'라운드 결과를 공개했습니다. 각 플레이어에게 개인 득점을 안내하세요.');
+  $('public-message').onclick=()=>{
+    if(!dealer||!session.published[session.game.roundIndex])return;
+    const r=round();
+    let text='[기브 & 테이크 · '+(session.game.roundIndex+1)+'라운드 공개 결과]\n받은 카드: '+r.results.map(x=>name(x.id)+' '+x.count+'장').join(' / ')+'\n최고 득점: '+signed(Math.max.apply(null,r.results.map(x=>x.score)))+'점\n최저 득점: '+signed(Math.min.apply(null,r.results.map(x=>x.score)))+'점';
+    if(session.game.roundIndex===4)text+='\n\n[5라운드 중간 점수 순위]\n'+E.rankings(session.game,4).map((x,i,rows)=>rankLabel(x,rows)+': '+name(x.id)).join('\n');
+    if(rematch())text+='\n\n10라운드의 각 라운드 득점까지 같은 플레이어가 있어 재경기가 필요합니다.';
+    if(session.finalRevealed)text+='\n\n[최종 순위]\n'+E.finalStandings(session.game).map(x=>x.finalRank+'위: '+name(x.id)+' (점수 순위 '+x.scoreRank+'위 / 예측 '+x.prediction+'위 / '+(x.success?'예측 성공':'예측 실패')+')').join('\n');
+    showMessage('공개 안내문',text,'공개된 정보만 포함된 안내문입니다.');
+  };
+  $('next').onclick=()=>ensureOperation(()=>{
+    ensureMeetingsDone();
+    if(rematch())throw Error('10라운드의 각 득점까지 같아 재경기가 필요합니다.');
+    if(!session.published[session.game.roundIndex])throw Error('현재 라운드 결과를 먼저 공개하세요.');
+    if(session.game.roundIndex===9)confirmAction('최종 순위 공개','모든 예측과 예측 성공 여부, 최종 순위를 공개합니다.',()=>commit(n=>{n.finalRevealed=true;},'최종 순위를 공개했습니다.'));
+    else actGame(g=>E.nextRound(g),(session.game.roundIndex+2)+'라운드가 시작되었습니다.',true);
+  });
+  $('meeting-add').onclick=()=>{
+    const participants=Array.from(document.querySelectorAll('[data-meeting-player]:checked')).map(x=>x.dataset.meetingPlayer);
+    actGame(g=>E.addMeeting(g,participants),'독대를 접수하고 참여자마다 가넷 1개를 차감했습니다.');
+  };
+  $('timer-pause').onclick=()=>commit(n=>{
+    if(n.timer.active===null)throw Error('진행 중인 독대가 없습니다.');
+    if(n.timer.deadline!==null){n.timer.remaining=Math.max(0,n.timer.deadline-Date.now());n.timer.deadline=null;}
+    else n.timer.deadline=Date.now()+n.timer.remaining;
+  },session.timer.deadline===null?'독대 타이머를 다시 시작했습니다.':'독대 타이머를 일시정지했습니다.');
+  function finishTimer(automatic){
+    if(session.timer.active===null)return;
+    const next=clone(session);next.timer.done.push(next.timer.active);next.timer.active=null;next.timer.deadline=null;next.timer.remaining=MEETING_MS;
+    if(!automatic){undoStack.push(clone(session));redoStack=[];}
+    session=next;save();render();say(automatic?'10분이 종료되어 독대를 완료했습니다.':'독대를 완료했습니다.',false);
+  }
+  $('timer-finish').onclick=()=>finishTimer(false);
+  setInterval(()=>{if(session.timer.active!==null&&session.timer.deadline!==null&&Date.now()>=session.timer.deadline)finishTimer(true);else if(dealer)renderClock();},400);
+  function download(name,text,type){
+    const url=URL.createObjectURL(new Blob([text],{type})),a=document.createElement('a');a.href=url;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+  }
+  $('export').onclick=()=>{if(!dealer)return;download('give-take-round-'+(session.game.roundIndex+1)+'.json',JSON.stringify(session,null,2),'application/json');say('현재 경기 파일을 저장했습니다.',false);};
+  $('import').onclick=()=>{if(dealer)$('file-input').click();};
+  $('file-input').onchange=async event=>{
+    const file=event.target.files&&event.target.files[0];event.target.value='';if(!file)return;
+    try{
+      if(file.size>1000000)throw Error('경기 파일은 1MB 이하로 선택하세요.');
+      const incoming=validateSession(JSON.parse(await file.text()));
+      confirmAction('경기 불러오기','현재 경기를 선택한 저장 파일로 교체합니다. 현재 경기로 돌아가려면 되돌리기를 사용할 수 있습니다.',()=>{
+        undoStack.push(clone(session));redoStack=[];session=incoming;drafts={};dealer=false;save();render();say('경기를 불러왔습니다. 공개 보기로 전환했습니다.',false);
+      });
+    }catch(err){say('불러오기 실패: '+err.message,true);}
+  };
+  $('new-game').onclick=()=>{if(!dealer)return;confirmAction('새 경기','현재 경기를 초기화합니다. 필요한 경우 먼저 경기 파일을 저장하세요.',()=>{
+    undoStack.push(clone(session));redoStack=[];session=fresh();drafts={};selected='p1';storePlayer='p1';save();render();say('새 경기를 준비합니다.',false);
+  });};
+  document.addEventListener('keydown',event=>{
+    if(event.key==='Escape'){if(!$('modal-root').hidden)closeModal();else if(dealer){dealer=false;render();say('공개 보기로 전환했습니다.',false);}return;}
+    if(!$('modal-root').hidden&&event.key==='Tab'){
+      const targets=Array.from($('modal-root').querySelectorAll('button:not([disabled]),textarea,input,select')).filter(x=>!x.hidden);
+      if(!targets.length)return;const first=targets[0],last=targets[targets.length-1];
+      if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus();}
+      else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus();}
+    }
+    if(event.target.dataset&&event.target.dataset.slot&&(event.key==='Enter'||event.key===' ')){event.preventDefault();activeSlot=event.target.dataset.slot;renderEditor();}
+  });
+  window.addEventListener('storage',event=>{if(event.key===KEY&&event.newValue!==JSON.stringify(session))say('다른 창에서 저장 내용이 변경되었습니다. 이 창의 경기 파일을 저장한 뒤 사용할 창 하나만 유지하세요.',true);});
+  render();
+  if(saved)save();
+})();
+</script>
+</body></html>

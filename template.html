@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#211a1d"><title>순위 예측: 기브 & 테이크 · 진행자 테이블</title><style>/*__STYLE__*/</style></head>
+<body>
+<header><div class="identity"><span class="mark" aria-hidden="true"></span><div><div class="eyebrow">RANK PREDICTION</div><h1>기브 &amp; 테이크</h1><p class="subtitle">점수를 나누고, 자신의 순위를 완성한다.</p></div></div><div class="header-tools"><span class="save-status" id="save-status">자동 저장 준비</span><button class="btn-sm undo-redo" id="undo">되돌리기</button><button class="btn-sm undo-redo" id="redo">다시 실행</button><button class="view-switch" id="view-toggle" role="switch" aria-checked="false"><span class="switch-track" aria-hidden="true"></span><span id="view-label">진행자 보기 OFF</span></button></div></header>
+<main>
+<div class="privacy-note" id="privacy-note" hidden>진행자 보기 ON · 예측, 손패, 개인 점수를 확인하고 있습니다. 화면 공유 시 OFF로 전환하세요.</div>
+<section class="panel" id="setup" hidden style="margin-bottom:18px"></section>
+<div class="layout"><div class="main-column">
+<section aria-label="공개 게임판">
+<div class="phase-grid" id="metrics"></div>
+<div class="table-shell"><div class="table-header"><div><div class="eyebrow">GIVE &amp; TAKE TABLE</div><div class="round-number" id="round-number">ROUND 01 <span>/ 10</span></div><h2 id="phase-name">경기 준비</h2></div><div class="round-track" id="round-track"></div></div>
+<div class="table-scroll"><div class="seats" id="seats"></div></div>
+<div class="table-foot"><div class="extremes"><div class="extreme">라운드 최고 득점<b id="maximum">—</b></div><div class="extreme">라운드 최저 득점<b id="minimum">—</b></div></div><p class="table-message" id="table-message">예측을 봉인하고 첫 라운드를 시작하세요.</p></div></div>
+<div class="priority-strip" id="priority-strip"></div>
+</section>
+<div class="public-only-message" id="public-guide">진행자 보기를 켜서 참가자와 예측을 설정하세요.</div>
+<section class="panel" id="checkpoint" hidden></section>
+<section class="panel" id="final-panel" hidden></section>
+<section class="panel" id="editor" hidden></section>
+<section class="panel" id="private-results" hidden></section>
+<section class="panel history" id="history"><div class="panel-title"><h2>라운드 기록</h2><span class="eyebrow">ROUND ARCHIVE</span></div><div id="history-content"></div></section>
+</div><aside class="sidebar" id="sidebar" hidden>
+<section class="panel operations"><div class="panel-title"><h2>라운드 운영</h2><span class="tag" id="submission-count">0 / 5 제출</span></div><div class="selection-progress" id="submission-progress"></div><p class="operation-note" id="operation-note"></p><div class="actions"><button id="resolve" class="primary">제출 마감 · 득점 계산</button><button id="publish">라운드 결과 공개</button><button id="next" class="next-button">다음 라운드</button></div><button id="public-message" class="wide btn-sm quiet" style="margin-top:7px">공개 안내문</button></section>
+<section class="panel"><div class="panel-title"><h2>아이템 관리</h2><span class="tag">비공개 구매</span></div><label class="field">플레이어<select id="store-player"></select></label><div id="store"></div></section>
+<section class="panel"><div class="panel-title"><h2>독대 관리</h2><span class="tag" id="meeting-count">0회 접수</span></div><div class="clock" id="meeting-clock">10:00</div><p class="tiny muted" id="meeting-caption" style="text-align:center">접수 대기</p><div class="row timer-controls" style="margin-top:9px"><button id="timer-pause">일시정지</button><button id="timer-finish">완료</button></div><div class="meeting-choice" id="meeting-choice"></div><button id="meeting-add" class="wide btn-sm">독대 접수 · 인당 1가넷</button><div class="meeting-queue" id="meeting-queue"></div></section>
+<section class="panel"><div class="panel-title"><h2>경기 관리</h2><span class="eyebrow">CONTROL</span></div><div class="row"><button id="undo-alt" class="btn-sm">되돌리기</button><button id="redo-alt" class="btn-sm">다시 실행</button></div><div class="data-tools"><button id="export" class="btn-sm">경기 파일 저장</button><button id="import" class="btn-sm">불러오기</button><button id="new-game" class="btn-sm danger">새 경기</button></div><input id="file-input" type="file" accept=".json,application/json" aria-label="경기 파일 불러오기" hidden><p class="tiny muted" style="margin-top:10px">자동 저장 · 경기 파일에는 비공개 정보도 포함됩니다.</p><details class="rules subtle-line"><summary>진행 기준 확인</summary><div class="rule-copy">기본 카드 2장: 자신 1장 + 다른 플레이어 1장.<br>아이템 구매는 비공개로 진행.<br>아이템도 카드 장수와 득점에 포함.<br>동점: 최근 라운드 득점부터 역순 비교. 10라운드의 각 득점까지 같으면 재경기.<br>5라운드 종료 후 현재 점수 순위만 공개.<br>최종: 예측 성공자 점수 순위순 → 예측 실패자 점수 순위순.</div></details></section>
+</aside></div>
+<footer class="footer"><p id="status" role="status" aria-live="polite">진행자 보기를 켜면 경기 준비를 시작할 수 있습니다.</p><span class="eyebrow">GIVE A CARD. TAKE YOUR PLACE.</span></footer>
+</main>
+<div class="modal-backdrop" id="modal-root" hidden></div>
+<script>/*__ENGINE__*/</script>
+<script>/*__APP__*/</script>
+</body></html>
