@@ -241,8 +241,8 @@
     return rows.map((row, i) => ({ ...row, finalRank: i + 1 }));
   }
   function addMeeting(state, participantIds) {
-    writableRound(state);
-    requireRule(Array.isArray(participantIds) && participantIds.length >= 2 && participantIds.length <= 5 && participantIds.every(isId) && new Set(participantIds).size === participantIds.length, '독대에 참여할 서로 다른 플레이어를 두 명 이상 선택해 주세요.');
+    current(state);
+    requireRule(Array.isArray(participantIds) && participantIds.length >= 2 && participantIds.length <= 5 && participantIds.every(isId) && new Set(participantIds).size === participantIds.length, '접선에 참여할 서로 다른 플레이어를 두 명 이상 선택해 주세요.');
     requireRule(participantIds.every(id => remainingGarnets(state, id) >= 1), '참여자 모두에게 가넷이 한 개 이상 필요합니다.');
     const next = copy(state);
     next.meetings.push({ roundIndex: next.roundIndex, participants: participantIds.slice() });
@@ -277,9 +277,9 @@
       const purchase = state.purchases[id];
       requireRule(isObject(purchase) && [null, 'plus', 'minus'].includes(purchase.boost) && typeof purchase.zero === 'boolean', '아이템 구매 기록이 올바르지 않습니다.');
     });
-    requireRule(Array.isArray(state.meetings), '독대 기록이 올바르지 않습니다.');
+    requireRule(Array.isArray(state.meetings), '접선 기록이 올바르지 않습니다.');
     state.meetings.forEach(meeting => {
-      requireRule(isObject(meeting) && integer(meeting.roundIndex, 0, state.roundIndex) && Array.isArray(meeting.participants) && meeting.participants.length >= 2 && meeting.participants.length <= 5 && meeting.participants.every(isId) && new Set(meeting.participants).size === meeting.participants.length, '독대 참여자 또는 라운드가 올바르지 않습니다.');
+      requireRule(isObject(meeting) && integer(meeting.roundIndex, 0, state.roundIndex) && Array.isArray(meeting.participants) && meeting.participants.length >= 2 && meeting.participants.length <= 5 && meeting.participants.every(isId) && new Set(meeting.participants).size === meeting.participants.length, '접선 참여자 또는 라운드가 올바르지 않습니다.');
     });
     requireRule(IDS.every(id => remainingGarnets(state, id) >= 0), '보유 가넷보다 많은 가넷을 사용한 기록입니다.');
     let resolvedCount = 0;

@@ -12,6 +12,9 @@
   function fresh(){
     return {version:3,game:E.createGame(IDS.map((id,i)=>({name:'플레이어 '+String.fromCharCode(65+i),garnets:0}))),published:Array(10).fill(false),finalRevealed:false,timer:{active:null,deadline:null,remaining:MEETING_MS,done:[]}};
   }
+  function matchClosed({game,published,finalRevealed}){
+    return finalRevealed||(published[9]&&E.needsRematch(game));
+  }
   function validateSession(raw){
     if(!raw||![1,2,3].includes(raw.version))throw Error('지원하지 않는 경기 파일입니다.');
     const game=E.validateState(raw.game);
@@ -19,15 +22,21 @@
     for(let i=0;i<game.roundIndex;i++)if(!raw.published[i])throw Error('이전 라운드 공개 기록이 누락되었습니다.');
     if(typeof raw.finalRevealed!=='boolean'||(raw.finalRevealed&&!raw.published[9]))throw Error('최종 결과 공개 기록이 올바르지 않습니다.');
     const t=raw.timer?clone(raw.timer):null, timerLimit=raw.version<3?180000:MEETING_MS;
-    if(!t||!Array.isArray(t.done)||new Set(t.done).size!==t.done.length||t.done.some(i=>!Number.isInteger(i)||i<0||i>=game.meetings.length))throw Error('독대 완료 기록이 올바르지 않습니다.');
-    if(t.active!==null&&(!Number.isInteger(t.active)||t.active<0||t.active>=game.meetings.length||t.done.includes(t.active)||game.meetings[t.active].roundIndex!==game.roundIndex))throw Error('진행 중인 독대 기록을 확인하세요.');
-    if(!Number.isFinite(t.remaining)||t.remaining<0||t.remaining>timerLimit||(t.deadline!==null&&(!Number.isFinite(t.deadline)||t.deadline<=0||t.deadline>Date.now()+timerLimit+1000||t.active===null)))throw Error('독대 타이머 기록이 올바르지 않습니다.');
+    if(!t||!Array.isArray(t.done)||new Set(t.done).size!==t.done.length||t.done.some(i=>!Number.isInteger(i)||i<0||i>=game.meetings.length))throw Error('접선 완료 기록이 올바르지 않습니다.');
+    if(t.active!==null&&(!Number.isInteger(t.active)||t.active<0||t.active>=game.meetings.length||t.done.includes(t.active)||game.meetings[t.active].roundIndex!==game.roundIndex))throw Error('진행 중인 접선 기록을 확인하세요.');
+    if(!Number.isFinite(t.remaining)||t.remaining<0||t.remaining>timerLimit||(t.deadline!==null&&(!Number.isFinite(t.deadline)||t.deadline<=0||t.deadline>Date.now()+timerLimit+1000||t.active===null)))throw Error('접선 타이머 기록이 올바르지 않습니다.');
     if(raw.version<3){
       t.remaining=t.active===null?MEETING_MS:t.remaining+MEETING_MS-180000;
       if(t.deadline!==null)t.deadline+=MEETING_MS-180000;
     }
-    for(let i=0;i<game.meetings.length;i++)if(game.rounds[game.meetings[i].roundIndex].resolved&&!t.done.includes(i))throw Error('완료되지 않은 독대가 있는 정산 기록입니다.');
-    return {version:3,game,published:raw.published.slice(),finalRevealed:raw.finalRevealed&&!E.needsRematch(game),timer:clone(t)};
+    const valid={version:3,game,published:raw.published.slice(),finalRevealed:raw.finalRevealed&&!E.needsRematch(game),timer:t};
+    const closed=matchClosed(valid);
+    for(let i=0;i<game.meetings.length;i++){
+      if((closed||game.meetings[i].roundIndex<game.roundIndex)&&!t.done.includes(i)){
+        throw Error('이전 라운드나 종료된 경기의 접선이 완료되지 않았습니다.');
+      }
+    }
+    return valid;
   }
   let session=fresh();
   try{const raw=localStorage.getItem(KEY);if(raw){session=validateSession(JSON.parse(raw));statusText='저장된 경기를 이어서 진행합니다. 공개 보기로 열었습니다.';}}catch(err){saved=false;statusText='저장 상태를 읽지 못했습니다. 경기 파일을 불러오거나 새로 시작하세요.';statusError=true;}
@@ -54,7 +63,7 @@
   function rematch(){return E.needsRematch(session.game);}
   function rankLabel(row,rows){return (rows.filter(x=>x.rank===row.rank).length>1?'공동 ':'')+row.rank+'위';}
   function pendingMeetings(){return session.game.meetings.map((m,i)=>({m,i})).filter(x=>x.m.roundIndex===session.game.roundIndex&&!session.timer.done.includes(x.i));}
-  function ensureMeetingsDone(){if(pendingMeetings().length)throw Error('접수한 독대를 모두 완료한 뒤 진행하세요.');}
+  function ensureMeetingsDone(){if(pendingMeetings().length)throw Error('접수한 접선을 모두 완료한 뒤 진행하세요.');}
   function currentCards(id){const cards=E.availableCards(session.game,id);const s=round().submissions[id];return round().resolved&&s?cards.filter(v=>v!==s.self&&v!==s.other):cards;}
   function currentItems(id){const kinds=E.availableItems(session.game,id);const s=round().submissions[id];return round().resolved&&s?kinds.filter(k=>!s.items.some(x=>x.kind===k)):kinds;}
   function draftFor(id){
@@ -113,11 +122,11 @@
     $('submission-count').textContent=count+' / 5 제출';
     $('submission-progress').innerHTML=g.players.map(p=>'<span class="selection-dot'+(r.submissions[p.id]?' ready':'')+'">'+esc(p.name)+(r.submissions[p.id]?' ✓':'')+'</span>').join('');
     $('resolve').disabled=!g.started||r.resolved||count!==5||pendingMeetings().length>0;
-    $('publish').disabled=!r.resolved||session.published[g.roundIndex];
+    $('publish').disabled=!r.resolved||session.published[g.roundIndex]||(rematch()&&pendingMeetings().length>0);
     $('public-message').disabled=!session.published[g.roundIndex];
     $('next').disabled=!r.resolved||!session.published[g.roundIndex]||session.finalRevealed||rematch()||pendingMeetings().length>0;
     $('next').textContent=rematch()?'재경기 필요':g.roundIndex===9?'최종 순위 공개':'다음 라운드';
-    $('operation-note').textContent=!g.started?'경기 준비에서 각자의 비공개 예측을 확정하세요.':rematch()?'10라운드의 각 득점까지 같아 재경기가 필요합니다. 기록을 저장한 뒤 새 경기를 준비하세요.':pendingMeetings().length?'접수한 독대를 완료하면 라운드 정산을 진행할 수 있습니다.':!r.resolved?'다섯 명의 제출이 봉인되면 득점을 계산하세요.':!session.published[g.roundIndex]?'득점 계산 완료. 결과 공개 시 카드 장수와 최고·최저 득점이 표시됩니다.':g.roundIndex===4?'중간 점수 순위가 함께 공개되었습니다. 개인 득점을 안내한 뒤 진행하세요.':g.roundIndex===9?'개인 득점을 안내한 뒤 최종 순위와 예측을 공개하세요.':'개인 득점을 안내한 뒤 다음 라운드로 진행하세요.';
+    $('operation-note').textContent=!g.started?'경기 준비에서 각자의 비공개 예측을 확정하세요.':rematch()?'10라운드의 각 득점까지 같아 재경기가 필요합니다. 기록을 저장한 뒤 새 경기를 준비하세요.':pendingMeetings().length?'접수한 접선을 완료하면 라운드 정산을 진행할 수 있습니다.':!r.resolved?'다섯 명의 제출이 봉인되면 득점을 계산하세요.':!session.published[g.roundIndex]?'득점 계산 완료. 결과 공개 시 카드 장수와 최고·최저 득점이 표시됩니다.':g.roundIndex===4?'중간 점수 순위가 함께 공개되었습니다. 개인 득점을 안내한 뒤 진행하세요.':g.roundIndex===9?'개인 득점을 안내한 뒤 최종 순위와 예측을 공개하세요.':'개인 득점을 안내한 뒤 다음 라운드로 진행하세요.';
   }
   function renderStore(){
     const g=session.game,purchase=g.purchases[storePlayer],available=currentItems(storePlayer),garnets=E.remainingGarnets(g,storePlayer);
@@ -130,9 +139,10 @@
   }
   function renderMeetings(){
     const g=session.game,t=session.timer,list=g.meetings.map((m,i)=>({m,i})).filter(x=>x.m.roundIndex===g.roundIndex);
+    const allowed=g.started&&!matchClosed(session);
     $('meeting-count').textContent=list.length+'회 접수';
-    $('meeting-choice').innerHTML=g.players.map(p=>'<label><input type="checkbox" data-meeting-player="'+p.id+'"'+(!g.started||round().resolved||E.remainingGarnets(g,p.id)<1?' disabled':'')+'><span>'+esc(p.name)+'</span></label>').join('');
-    $('meeting-add').disabled=!g.started||round().resolved;
+    $('meeting-choice').innerHTML=g.players.map(p=>'<label><input type="checkbox" data-meeting-player="'+p.id+'"'+(!allowed||E.remainingGarnets(g,p.id)<1?' disabled':'')+'><span>'+esc(p.name)+'</span></label>').join('');
+    $('meeting-add').disabled=!allowed;
     const first=pendingMeetings()[0];
     $('meeting-queue').innerHTML=list.map(({m,i},j)=>'<div class="meeting-ticket"><span>'+(j+1)+'. '+m.participants.map(id=>esc(name(id))).join(', ')+'<br>'+(t.done.includes(i)?'완료':t.active===i?'진행 중':'접수 대기')+'</span>'+(!t.done.includes(i)&&t.active===null?'<button data-meeting-start="'+i+'"'+(first&&first.i===i?'':' disabled')+'>시작</button>':'')+'</div>').join('');
     renderClock();
@@ -141,7 +151,7 @@
     const t=session.timer,remaining=t.active===null?MEETING_MS:t.deadline===null?t.remaining:Math.max(0,t.deadline-Date.now());
     const seconds=Math.ceil(remaining/1000);
     $('meeting-clock').textContent=String(Math.floor(seconds/60)).padStart(2,'0')+':'+String(seconds%60).padStart(2,'0');
-    $('meeting-caption').textContent=t.active===null?'독대 접수 순서대로 진행':t.deadline===null?'일시정지':session.game.meetings[t.active].participants.map(name).join(' · ');
+    $('meeting-caption').textContent=t.active===null?'접선 접수 순서대로 진행':t.deadline===null?'일시정지':session.game.meetings[t.active].participants.map(name).join(' · ');
     $('timer-pause').disabled=t.active===null;$('timer-finish').disabled=t.active===null;
     $('timer-pause').textContent=t.deadline===null&&t.active!==null?'다시 시작':'일시정지';
   }
@@ -205,8 +215,8 @@
       }
       if(button.dataset.meetingStart!==undefined){
         const i=Number(button.dataset.meetingStart),first=pendingMeetings()[0];
-        if(!first||first.i!==i)throw Error('접수 순서대로 독대를 시작하세요.');
-        commit(n=>{if(n.timer.active!==null)throw Error('진행 중인 독대를 먼저 완료하세요.');n.timer.active=i;n.timer.remaining=MEETING_MS;n.timer.deadline=Date.now()+MEETING_MS;},'독대 타이머를 시작했습니다.');
+        if(!first||first.i!==i)throw Error('접수 순서대로 접선을 시작하세요.');
+        commit(n=>{if(n.timer.active!==null)throw Error('진행 중인 접선을 먼저 완료하세요.');n.timer.active=i;n.timer.remaining=MEETING_MS;n.timer.deadline=Date.now()+MEETING_MS;},'접선 타이머를 시작했습니다.');
       }
     }catch(err){say(err.message,true);}
   });
@@ -234,6 +244,7 @@
   function ensureOperation(fn){if(!dealer)return;try{fn();}catch(err){say(err.message,true);}}
   $('publish').onclick=()=>commit(n=>{
     if(!n.game.rounds[n.game.roundIndex].resolved)throw Error('먼저 득점을 계산하세요.');
+    if(E.needsRematch(n.game))ensureMeetingsDone();
     n.published[n.game.roundIndex]=true;
   },session.game.roundIndex===4?'라운드 결과와 5라운드 중간 점수 순위를 공개했습니다.':'라운드 결과를 공개했습니다. 각 플레이어에게 개인 득점을 안내하세요.');
   $('public-message').onclick=()=>{
@@ -254,18 +265,21 @@
   });
   $('meeting-add').onclick=()=>{
     const participants=Array.from(document.querySelectorAll('[data-meeting-player]:checked')).map(x=>x.dataset.meetingPlayer);
-    actGame(g=>E.addMeeting(g,participants),'독대를 접수하고 참여자마다 가넷 1개를 차감했습니다.');
+    commit(n=>{
+      if(matchClosed(n))throw Error('경기가 이미 종료되었습니다.');
+      n.game=E.addMeeting(n.game,participants);
+    },'접선을 접수하고 참여자마다 가넷 1개를 차감했습니다.');
   };
   $('timer-pause').onclick=()=>commit(n=>{
-    if(n.timer.active===null)throw Error('진행 중인 독대가 없습니다.');
+    if(n.timer.active===null)throw Error('진행 중인 접선이 없습니다.');
     if(n.timer.deadline!==null){n.timer.remaining=Math.max(0,n.timer.deadline-Date.now());n.timer.deadline=null;}
     else n.timer.deadline=Date.now()+n.timer.remaining;
-  },session.timer.deadline===null?'독대 타이머를 다시 시작했습니다.':'독대 타이머를 일시정지했습니다.');
+  },session.timer.deadline===null?'접선 타이머를 다시 시작했습니다.':'접선 타이머를 일시정지했습니다.');
   function finishTimer(automatic){
     if(session.timer.active===null)return;
     const next=clone(session);next.timer.done.push(next.timer.active);next.timer.active=null;next.timer.deadline=null;next.timer.remaining=MEETING_MS;
     if(!automatic){undoStack.push(clone(session));redoStack=[];}
-    session=next;save();render();say(automatic?'10분이 종료되어 독대를 완료했습니다.':'독대를 완료했습니다.',false);
+    session=next;save();render();say(automatic?'10분이 종료되어 접선을 완료했습니다.':'접선을 완료했습니다.',false);
   }
   $('timer-finish').onclick=()=>finishTimer(false);
   setInterval(()=>{if(session.timer.active!==null&&session.timer.deadline!==null&&Date.now()>=session.timer.deadline)finishTimer(true);else if(dealer)renderClock();},400);

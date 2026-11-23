@@ -104,6 +104,15 @@ async function main(){
       ok(!checkpointHTML.includes('누적 득점'),'checkpoint has no cumulative values');
     }
     if(r>4)eq(ui.q('#checkpoint').innerHTML,checkpointHTML,'checkpoint remains fifth-round snapshot');
+    if(r===0||r===9){
+      ok(!ui.q('#meeting-add').disabled,'meeting accepts requests after round disclosure');
+      ui.box('[data-meeting-player="p2"]');ui.box('[data-meeting-player="p3"]');ui.click('#meeting-add');
+      const request=ui.session().game.meetings.length-1;
+      eq(ui.session().game.meetings[request].roundIndex,r,'meeting belongs to the resolved round');
+      ok(ui.q('#next').disabled,'pending meeting blocks the next round or final reveal');
+      ui.click('[data-meeting-start="'+request+'"]');ui.click('#timer-finish');
+      ok(!ui.q('#next').disabled,'completing meeting resumes progression');
+    }
     if(r<9){ui.click('#next');eq(ui.session().game.roundIndex,r+1,'next round advances once');}
   }
   ok(ui.q('#final-panel').hidden,'final ranks wait for deliberate reveal');
@@ -112,6 +121,7 @@ async function main(){
   ui.click('#view-toggle');ui.click('#next');
   ok(!ui.session().finalRevealed,'final reveal requires confirmation');
   ui.click('#confirm-go');ok(ui.session().finalRevealed,'final reveal saved');
+  ok(ui.q('#meeting-add').disabled,'final reveal closes meeting applications');
   ok(!ui.q('#final-panel').hidden,'final result visible');
   ui.click('#view-toggle');
   ok(!ui.q('#final-panel').innerHTML.includes('누적 점수'),'public final table hides numeric totals');
@@ -185,6 +195,9 @@ async function main(){
   eq(meetings.session().timer.done,[0,1,2,3],'all meetings finish in order');
   ok(!meetings.q('#resolve').disabled,'resolution unlocks after all meetings finish');
   meetings.click('#resolve');ok(meetings.session().game.rounds[0].resolved,'completed meeting round resolves');
+  meetings.box('[data-meeting-player="p1"]');meetings.box('[data-meeting-player="p3"]');meetings.click('#meeting-add');
+  const gap=boot(meetings.session());gap.click('#view-toggle');
+  ok(!gap.q('[data-meeting-start="4"]').disabled,'a queued post-resolution request is importable');
 
   // Full-vector ties require a rematch and migrate legacy saved ranks safely.
   let zeroGame=G.createGame(IDS.map(id=>({name:id,garnets:4})),IDS.slice().reverse());
